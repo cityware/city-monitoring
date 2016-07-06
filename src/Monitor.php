@@ -9,7 +9,7 @@
 namespace Cityware\Monitoring;
 
 /**
- * Description of Monitor2
+ * Description of Monitor
  *
  * @author fsvxavier
  */
