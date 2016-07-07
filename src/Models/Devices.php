@@ -8,21 +8,21 @@
 
 namespace Cityware\Monitoring\Models;
 
+use Cityware\Monitoring\Models\AbstractModels;
+
 /**
  * Description of Devices
  *
  * @author fsvxavier
  */
-class Devices {
-
-    private $db;
-    
-    public function __construct() {
-        $this->db = \Cityware\Db\Factory::factory();
-    }
+class Devices extends AbstractModels {
 
     public function getDevices() {
-        
+        $this->getConnection();
+        $this->db->select("*");
+        $this->db->from('tab_device', null, 'nocomsys');
+        $rsDevices = $this->db->executeSelectQuery();
+        return $rsDevices;
     }
 
 }

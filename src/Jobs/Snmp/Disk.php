@@ -16,12 +16,16 @@ use Cityware\Monitoring\Jobs\AbstractJobs;
  * @author fsvxavier
  */
 class Disk extends AbstractJobs {
+    
+    public function __contruct(array $params) {
+        $this->getConnections($params, 'S');
+    }
 
 
     /**
      * @param array $params
      */
-    private function snmpCon() {
+    private function getSnmp() {
         
     }
 

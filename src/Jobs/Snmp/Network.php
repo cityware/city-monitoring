@@ -6,15 +6,13 @@
  * and open the template in the editor.
  */
 
-namespace Cityware\Monitoring\Models;
+namespace Cityware\Monitoring\Jobs\Snmp;
 
 /**
- * Description of Disk.
+ * Description of Network
  *
  * @author fsvxavier
  */
-class Disk {
-    public function __construct(array $deviceParams = null) {
-        
-    }
+class Network {
+    //put your code here
 }
