@@ -6,13 +6,15 @@
  * and open the template in the editor.
  */
 
-namespace Cityware\Monitoring\Jobs;
+namespace Cityware\Monitoring\Models;
 
 /**
- * Description of Disk
+ * Description of Disk.
  *
  * @author fsvxavier
  */
 class Disk {
-    //put your code here
+    public function __construct(array $deviceParams = null) {
+        
+    }
 }

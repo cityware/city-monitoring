@@ -6,24 +6,22 @@
  * and open the template in the editor.
  */
 
-namespace Cityware\Monitoring;
+namespace Cityware\Monitoring\Jobs\Snmp;
 
-use Exception;
+use Cityware\Monitoring\Jobs\AbstractJobs;
 
 /**
- * Description of Monitor.
+ * Description of Disk.
  *
  * @author fsvxavier
  */
-class Monitor {
-    
-    
+class Disk extends AbstractJobs {
 
-    public function __construct() {
-        
-    }
 
-    private function prepareDevices() {
+    /**
+     * @param array $params
+     */
+    private function snmpCon() {
         
     }
 

@@ -6,24 +6,22 @@
  * and open the template in the editor.
  */
 
-namespace Cityware\Monitoring;
-
-use Exception;
+namespace Cityware\Monitoring\Models;
 
 /**
- * Description of Monitor.
+ * Description of Devices
  *
  * @author fsvxavier
  */
-class Monitor {
-    
-    
+class Devices {
 
+    private $db;
+    
     public function __construct() {
-        
+        $this->db = \Cityware\Db\Factory::factory();
     }
 
-    private function prepareDevices() {
+    public function getDevices() {
         
     }
 
