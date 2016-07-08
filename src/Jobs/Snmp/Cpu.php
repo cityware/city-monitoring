@@ -14,5 +14,18 @@ namespace Cityware\Monitoring\Jobs\Snmp;
  * @author fsvxavier
  */
 class Cpu {
-    //put your code here
+    
+    /**
+     * Return Disk Data
+     * @param object $snmpConnection
+     * @return array
+     */
+    public function getCpuData($snmpConnection) {
+        
+        $return = Array();
+        $return['oneMinute'] = $snmpConnection->useLinux_Cpu()->loadOneMinute();
+        $return['fiveMinute'] = $snmpConnection->useLinux_Cpu()->loadFiveMinutes();
+        $return['fifteenMinute'] = $snmpConnection->useLinux_Cpu()->loadFifteenMinutes();
+        return $return;
+    }
 }

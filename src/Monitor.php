@@ -37,6 +37,7 @@ class Monitor {
         $managerDevices->setShareResult(false);
 
         $indexParallel = 0;
+        
         foreach ($paramsDevices as $valueDevices) {
             if ($indexParallel == 0) {
                 $managerDevices->doTheJob($job, array($valueDevices));
@@ -46,7 +47,7 @@ class Monitor {
             $indexParallel++;
         }
         
-        $managerDevices->createChildren(($indexParallel + 1));
+        $managerDevices->createChildren($indexParallel);
         
         // do multiple tasks
         $managerDevices->wait();

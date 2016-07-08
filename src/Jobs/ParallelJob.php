@@ -8,6 +8,10 @@
 
 namespace Cityware\Monitoring\Jobs;
 
+use Cityware\Monitoring\Jobs\Snmp AS JobSnmp;
+use Cityware\Monitoring\Jobs\Wmi AS JobWmi;
+use Cityware\Monitoring\Models AS DbModels;
+
 /**
  * Description of ParallelJob
  *
@@ -23,23 +27,42 @@ class ParallelJob {
         $connection = $connectionJobs->getConnection($paramsDevices, $paramsDevices['ind_snmp_wmi']);
         
         if ($paramsDevices['ind_snmp_wmi'] == 'S') {
-            foreach ($modelStdMonitoring->getStdMonitoring($paramsDevices['cod_device_type']) as $valueStdMonitoring) {
+            foreach ($modelStdMonitoring->getStdMonitoring($paramsDevices['cod_device_type'], $paramsDevices['cod_device']) as $valueStdMonitoring) {
                 switch ($valueStdMonitoring['des_sign']) {
                     case 'dsk':
-                        $disk = new \Cityware\Monitoring\Jobs\Snmp\Disk();
-                        $disk->getDiskData($connection);
+                        //Get Snmp Data
+                        $disk = new JobSnmp\Disk();
+                        $dskData = $disk->getDiskData($connection);
+                        $dskIoData = $disk->getIoDiskData($connection);
+                        
+                        //Insert data Snmp in Database
+                        $diskDb = new DbModels\DataDisk();
+                        $diskDb->setDataDisk($dskData, $paramsDevices);
+                        $diskDb->setIoDataDisk($dskIoData, $paramsDevices);
                         break;
                     case 'sys':
 
                         break;
                     case 'mem':
-
+                        //Get Snmp Data
+                        $memory = new JobSnmp\Memory();
+                        $memData = $memory->geMemoryData($connection);
+                        
+                        //Insert data Snmp in Database
+                        $memoryDb = new DbModels\DataMemory();
+                        $memoryDb->setDataMemory($memData, $paramsDevices);
                         break;
                     case 'net':
 
                         break;
                     case 'cpu':
-
+                        //Get Snmp Data
+                        $cpu = new JobSnmp\Memory();
+                        $cpuData = $cpu->geMemoryData($connection);
+                        
+                        //Insert data Snmp in Database
+                        $cpuDb = new DbModels\DataMemory();
+                        $cpuDb->setDataMemory($cpuData, $paramsDevices);
                         break;
 
                     default:

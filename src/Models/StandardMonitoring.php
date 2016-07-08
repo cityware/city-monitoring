@@ -19,7 +19,7 @@ class StandardMonitoring extends AbstractModels {
         $this->getConnection();
     }
 
-    public function getStdMonitoring($deviceTypeId) {
+    public function getStdMonitoring($deviceTypeId, $codDevice = null) {
         $this->db->select("tsm.cod_std_monitoring");
         $this->db->select("tsm.nam_std_monitoring");
         $this->db->select("tsm.des_sign");
@@ -27,6 +27,13 @@ class StandardMonitoring extends AbstractModels {
         $this->db->join('tab_std_monitoring_device_type', 'tsmdt', 'tsmdt.cod_std_monitoring = tsm.cod_std_monitoring', 'INNERJOIN', 'nocomsys');
         $this->db->where("tsm.ind_status = 'A'");
         $this->db->where("tsmdt.cod_device_type = '$deviceTypeId'");
+
+        if (!empty($codDevice)) {
+            $this->db->join('tab_device', 'td', 'td.cod_device_type = tsmdt.cod_device_type', 'INNERJOIN', 'nocomsys');
+            $this->db->where("td.ind_status = 'A'");
+            $this->db->where("td.cod_device = '$codDevice'");
+        }
+        $this->db->setDebug(false);
         $rsStdMonitoring = $this->db->executeSelectQuery();
         return $rsStdMonitoring;
     }

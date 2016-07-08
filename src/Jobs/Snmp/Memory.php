@@ -14,5 +14,13 @@ namespace Cityware\Monitoring\Jobs\Snmp;
  * @author fsvxavier
  */
 class Memory {
-    //put your code here
+    /**
+     * Return Disk Data
+     * @param object $snmpConnection
+     * @return array
+     */
+    public function geMemoryData($snmpConnection) {
+        $return = $snmpConnection->useLinux_Memory()->returnFullData();
+        return $return;
+    }
 }

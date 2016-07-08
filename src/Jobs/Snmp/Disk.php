@@ -14,27 +14,25 @@ namespace Cityware\Monitoring\Jobs\Snmp;
  * @author fsvxavier
  */
 class Disk {
-
+    
     /**
-     * 
-     * @param array $params
+     * Return Disk Data
+     * @param object $snmpConnection
      * @return array
      */
     public function getDiskData($snmpConnection) {
         $return = $snmpConnection->useLinux_Disk()->returnFullData();
-        
-        echo '<pre>';
-        print_r($return);
-        exit;
+        return $return;
     }
 
     /**
-     * 
-     * @param array $params
+     * Return IO Disk Data
+     * @param object $snmpConnection
      * @return array
      */
-    public function getDiskIoData($snmpConnection) {
-        
+    public function getIoDiskData($snmpConnection) {
+        $return = $snmpConnection->useLinux_Disk()->returnFullDataIo();
+        return $return;
     }
 
 }
