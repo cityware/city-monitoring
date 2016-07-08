@@ -15,7 +15,10 @@ namespace Cityware\Monitoring\Models;
  */
 class StandardMonitoring extends AbstractModels {
 
-    
+    public function __construct() {
+        $this->getConnection();
+    }
+
     public function getStdMonitoring($deviceTypeId) {
         $this->db->select("tsm.cod_std_monitoring");
         $this->db->select("tsm.nam_std_monitoring");

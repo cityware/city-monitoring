@@ -8,24 +8,32 @@
 
 namespace Cityware\Monitoring\Jobs\Snmp;
 
-use Cityware\Monitoring\Jobs\AbstractJobs;
-
 /**
  * Description of Disk.
  *
  * @author fsvxavier
  */
-class Disk extends AbstractJobs {
-    
-    public function __contruct(array $params) {
-        $this->getConnections($params, 'S');
-    }
-
+class Disk {
 
     /**
+     * 
      * @param array $params
+     * @return array
      */
-    private function getSnmp() {
+    public function getDiskData($snmpConnection) {
+        $return = $snmpConnection->useLinux_Disk()->returnFullData();
+        
+        echo '<pre>';
+        print_r($return);
+        exit;
+    }
+
+    /**
+     * 
+     * @param array $params
+     * @return array
+     */
+    public function getDiskIoData($snmpConnection) {
         
     }
 

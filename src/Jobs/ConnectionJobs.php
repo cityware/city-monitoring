@@ -9,11 +9,11 @@
 namespace Cityware\Monitoring\Jobs;
 
 /**
- * Description of AbstractJobs
+ * Description of ConnectionJobs
  *
  * @author fsvxavier
  */
-class AbstractJobs {
+class ConnectionJobs {
 
     private $snmp = null;
     private $wmi = null;
@@ -39,14 +39,14 @@ class AbstractJobs {
             $connection->setSecLevel(3);
             $connection->disableCache();
 
-            $this->setSnmp($connection);
+            $this->setSnmpCon($connection);
         } else if ($type == 'W') {
 
             $host = (!empty($params['num_ip'])) ? $params['num_ip'] : '127.0.0.1';
             $username = (!empty($params['num_ip'])) ? $params['num_ip'] : null;
             $password = (!empty($params['num_ip'])) ? $params['num_ip'] : null;
             $domain = (!empty($params['num_ip'])) ? $params['num_ip'] : null;
-            $connection = new \Cityware\Wmi\Wmi($host, $username, $password, $domain);
+            $connection = new \Cityware\Wmi\Wmic($host, $username, $password, $domain);
             $this->setWmiCon($connection->connect('root\\cimv2'));
         }
 

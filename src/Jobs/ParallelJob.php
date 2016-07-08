@@ -15,38 +15,41 @@ namespace Cityware\Monitoring\Jobs;
  */
 class ParallelJob {
 
-    public function parallelJobMonitor($params) {
+    public function parallelJobMonitor(array $paramsDevices) {
+
         $modelStdMonitoring = new \Cityware\Monitoring\Models\StandardMonitoring();
 
-        if ($params['ind_snmp_wmi'] == 'S') {
-
-            foreach ($modelStdMonitoring->getStdMonitoring($params['cod_device_type']) as $keyStdMonitoring => $valueStdMonitoring) {
+        $connectionJobs = new \Cityware\Monitoring\Jobs\ConnectionJobs();
+        $connection = $connectionJobs->getConnection($paramsDevices, $paramsDevices['ind_snmp_wmi']);
+        
+        if ($paramsDevices['ind_snmp_wmi'] == 'S') {
+            foreach ($modelStdMonitoring->getStdMonitoring($paramsDevices['cod_device_type']) as $valueStdMonitoring) {
                 switch ($valueStdMonitoring['des_sign']) {
                     case 'dsk':
-                        $dataDisk = \Cityware\Monitoring\Jobs\Snmp\Disk($params);
+                        $disk = new \Cityware\Monitoring\Jobs\Snmp\Disk();
+                        $disk->getDiskData($connection);
                         break;
                     case 'sys':
-                        $dataSystem = \Cityware\Monitoring\Jobs\Snmp\System($params);
+
                         break;
                     case 'mem':
-                        $dataMemory = \Cityware\Monitoring\Jobs\Snmp\Memory($params);
+
                         break;
                     case 'net':
-                        $dataNetwork = \Cityware\Monitoring\Jobs\Snmp\Network($params);
+
                         break;
                     case 'cpu':
-                        $dataCpu = \Cityware\Monitoring\Jobs\Snmp\Cpu($params);
+
                         break;
 
                     default:
                         break;
                 }
             }
-
-        } elseif ($params['ind_snmp_wmi'] == 'W') {
+        } else if ($paramsDevices['ind_snmp_wmi'] == 'W') {
             
         } else {
-            break;
+            //break;
         }
     }
 

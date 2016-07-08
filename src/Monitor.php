@@ -23,18 +23,18 @@ class Monitor {
     }
 
     private function prepareDevices(array $paramsDevices) {
-
+        
         $jobObject = new \Cityware\Monitoring\Jobs\ParallelJob();
         $job = new \Zend\Stdlib\CallbackHandler(array($jobObject, 'parallelJobMonitor'));
 
         $memorySharedManagerDevice = new \Cityware\MemoryShared\MemorySharedManager();
-        $memorySharedManagerDevice->setStorage('file', array('dir' => DATA_PATH));
+        $memorySharedManagerDevice->setStorage('file', array('dir' => DATA_PATH . 'sharedmemory' . DS . 'devices' . DS));
 
         $managerDevices = new \Cityware\ParallelJobs\ForkManager();
         $managerDevices->setAutoStart(true);
         $managerDevices->setMemoryManager($memorySharedManagerDevice);
         $managerDevices->setStorage('file');
-        $managerDevices->setShareResult(true);
+        $managerDevices->setShareResult(false);
 
         $indexParallel = 0;
         foreach ($paramsDevices as $valueDevices) {
@@ -46,7 +46,7 @@ class Monitor {
             $indexParallel++;
         }
         
-        $managerDevices->createChildren($indexParallel);
+        $managerDevices->createChildren(($indexParallel + 1));
         
         // do multiple tasks
         $managerDevices->wait();
