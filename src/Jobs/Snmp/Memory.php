@@ -15,7 +15,7 @@ namespace Cityware\Monitoring\Jobs\Snmp;
  */
 class Memory {
     /**
-     * Return Disk Data
+     * Return Memory Data
      * @param object $snmpConnection
      * @return array
      */

@@ -14,5 +14,14 @@ namespace Cityware\Monitoring\Jobs\Snmp;
  * @author fsvxavier
  */
 class Network {
-    //put your code here
+    
+    /**
+     * Return Network Data
+     * @param object $snmpConnection
+     * @return array
+     */
+    public function getNetworkData($snmpConnection) {
+        $return = $snmpConnection->useIface()->returnFullData();
+        return $return;
+    }
 }

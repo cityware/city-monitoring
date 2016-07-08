@@ -16,7 +16,7 @@ namespace Cityware\Monitoring\Jobs\Snmp;
 class Cpu {
     
     /**
-     * Return Disk Data
+     * Return CPU Data
      * @param object $snmpConnection
      * @return array
      */

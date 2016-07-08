@@ -53,16 +53,22 @@ class ParallelJob {
                         $memoryDb->setDataMemory($memData, $paramsDevices);
                         break;
                     case 'net':
-
+                        //Get Snmp Data
+                        $network = new JobSnmp\Network();
+                        $netData = $network->getNetworkData($connection);
+                        
+                        //Insert data Snmp in Database
+                        $networkDb = new DbModels\DataNetwork();
+                        $networkDb->setDataNetwork($netData, $paramsDevices);
                         break;
                     case 'cpu':
                         //Get Snmp Data
-                        $cpu = new JobSnmp\Memory();
-                        $cpuData = $cpu->geMemoryData($connection);
+                        $cpu = new JobSnmp\Cpu();
+                        $cpuData = $cpu->getCpuData($connection);
                         
                         //Insert data Snmp in Database
-                        $cpuDb = new DbModels\DataMemory();
-                        $cpuDb->setDataMemory($cpuData, $paramsDevices);
+                        $cpuDb = new DbModels\DataCpu();
+                        $cpuDb->setDataCpu($cpuData, $paramsDevices);
                         break;
 
                     default:
