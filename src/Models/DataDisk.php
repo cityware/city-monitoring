@@ -17,7 +17,7 @@ use Exception;
  */
 class DataDisk extends AbstractModels {
 
-    public function setDataDisk(array $params, $paramsDevices) {
+    public function setDataDisk(array $params, array $paramsDevices) {
         $this->getConnection();
         try {
             $this->db->transaction();

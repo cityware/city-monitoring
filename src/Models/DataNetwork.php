@@ -15,7 +15,7 @@ namespace Cityware\Monitoring\Models;
  */
 class DataNetwork extends AbstractModels {
 
-    public function setDataNetwork(array $params, $paramsDevices) {
+    public function setDataNetwork(array $params, array $paramsDevices) {
 
         $this->getConnection();
         try {

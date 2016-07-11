@@ -15,7 +15,7 @@ namespace Cityware\Monitoring\Models;
  */
 class DataMemory extends AbstractModels {
 
-    public function setDataMemory(array $params, $paramsDevices) {
+    public function setDataMemory(array $params, array $paramsDevices) {
         $this->getConnection();
         try {
             $this->db->transaction();

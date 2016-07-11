@@ -15,7 +15,7 @@ namespace Cityware\Monitoring\Models;
  */
 class DataHost extends AbstractModels {
 
-    public function setDataHost(array $params, $paramsDevices) {
+    public function setDataHost(array $params, array $paramsDevices) {
 
         $this->getConnection();
         try {

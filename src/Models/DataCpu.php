@@ -15,7 +15,7 @@ namespace Cityware\Monitoring\Models;
  */
 class DataCpu extends AbstractModels {
     
-    public function setDataCpu(array $params, $paramsDevices) {
+    public function setDataCpu(array $params, array $paramsDevices) {
         $this->getConnection();
         try {
             $this->db->transaction();
