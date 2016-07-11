@@ -13,6 +13,6 @@ namespace Cityware\Monitoring\Models;
  *
  * @author fsvxavier
  */
-class DataHost extends AbstractModels {
+class DataSystem extends AbstractModels {
     //put your code here
 }
