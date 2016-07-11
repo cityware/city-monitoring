@@ -32,6 +32,7 @@ class Monitor {
 
         $managerDevices = new \Cityware\ParallelJobs\ForkManager();
         $managerDevices->setAutoStart(true);
+        $managerDevices->timeout(30);
         $managerDevices->setMemoryManager($memorySharedManagerDevice);
         $managerDevices->setStorage('file');
         $managerDevices->setShareResult(false);

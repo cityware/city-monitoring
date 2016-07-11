@@ -14,5 +14,26 @@ namespace Cityware\Monitoring\Jobs\Snmp;
  * @author fsvxavier
  */
 class System {
-    //put your code here
+    
+    /**
+     * Return CPU Data
+     * @param object $snmpConnection
+     * @return array
+     */
+    public function getSystemData($snmpConnection) {
+        
+        $return = Array();
+        
+        $hostFullData = $snmpConnection->useLinux_Host()->returnFullData();
+
+        $hostDataPlatform = new \Cityware\Snmp\Platform($snmpConnection);
+        
+        $hostDataPlatform->getAllData();
+
+        $return['uptime'] = \Cityware\Format\Date::secondsToTime($hostFullData['system']['uptime']);
+        $return['users_connected'] = \Cityware\Format\Number::byteFormat($hostFullData['storage']['memory_size'], 'KB');
+        $return['running_process'] = \Cityware\Format\Number::byteFormat($hostFullData['storage']['memory_size'], 'KB');
+
+        return $return;
+    }
 }

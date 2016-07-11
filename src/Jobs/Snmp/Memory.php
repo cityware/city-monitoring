@@ -19,7 +19,7 @@ class Memory {
      * @param object $snmpConnection
      * @return array
      */
-    public function geMemoryData($snmpConnection) {
+    public function getMemoryData($snmpConnection) {
         $return = $snmpConnection->useLinux_Memory()->returnFullData();
         return $return;
     }

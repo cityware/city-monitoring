@@ -6,19 +6,13 @@
  * and open the template in the editor.
  */
 
-namespace Cityware\Monitoring\Jobs;
+namespace Cityware\Monitoring\Models;
 
 /**
- * Description of Ping
+ * Description of DataHost
  *
  * @author fsvxavier
  */
-class Ping {
-    
-    public function executePing(array $params) {
-        $ping = new \Cityware\Utility\Ping($params['num_ip']);
-
-        return $ping->ping();
-    }
-
+class DataHost extends AbstractModels {
+    //put your code here
 }

@@ -13,19 +13,23 @@ namespace Cityware\Monitoring\Jobs\Snmp;
  *
  * @author fsvxavier
  */
-class Cpu {
+class Host {
     
     /**
      * Return CPU Data
      * @param object $snmpConnection
      * @return array
      */
-    public function getCpuData($snmpConnection) {
+    public function getHostData($snmpConnection) {
         
         $return = Array();
-        $return['oneMinute'] = $snmpConnection->useLinux_Cpu()->loadOneMinute();
-        $return['fiveMinute'] = $snmpConnection->useLinux_Cpu()->loadFiveMinutes();
-        $return['fifteenMinute'] = $snmpConnection->useLinux_Cpu()->loadFifteenMinutes();
+        
+        $hostFullData = $snmpConnection->useLinux_Host()->returnFullData();
+
+        $return['uptime'] = $hostFullData['system']['uptime'];
+        $return['users_connected'] = $hostFullData['system']['num_users'];
+        $return['running_process'] = $hostFullData['system']['processes'];
+
         return $return;
     }
 }
