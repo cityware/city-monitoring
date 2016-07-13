@@ -25,4 +25,14 @@ class Devices extends AbstractModels {
         return $rsDevices;
     }
 
+    public function getDeviceById($id) {
+        
+        $this->getConnection();
+        $this->db->select("*");
+        $this->db->from('tab_device', null, 'nocomsys');
+        $this->db->where("cod_device = '{$id}'");
+        $rsDevices = $this->db->executeSelectQuery();
+        return $rsDevices;
+    }
+
 }

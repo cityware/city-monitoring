@@ -34,5 +34,20 @@ class DataHost extends AbstractModels {
             throw new Exception('Error While Insert Data Host for JOB PARALLEL - ' . $exc->getMessage());
         }
     }
+    
+    public function getDataHost(array $params) {
+        $this->getConnection();
+        $this->db->select("tdh.num_users_connected");
+        $this->db->select("tdh.num_uptime");
+        $this->db->select("tdh.num_running_process");
+        $this->db->from('tab_data_host', 'tdh', 'nocomdata');
+        $this->db->where("tdh.cod_device = '{$params['cod_device']}'");
+        $this->db->where("tdh.dte_register >= '{$params['dte_start']}'");
+        $this->db->where("tdh.dte_register <= '{$params['dte_finish']}'");
+        
+        $this->db->setDebug(false);
+        $rsDataHost = $this->db->executeSelectQuery();
+        return $rsDataHost;
+    }
 
 }

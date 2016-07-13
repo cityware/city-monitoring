@@ -45,7 +45,7 @@ class DataDisk extends AbstractModels {
         }
     }
 
-    public function setIoDataDisk(array $params, $paramsDevices) {
+    public function setIoDataDisk(array $params, array $paramsDevices) {
 
         $this->getConnection();
         try {
