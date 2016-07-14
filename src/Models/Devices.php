@@ -31,8 +31,18 @@ class Devices extends AbstractModels {
         $this->db->select("*");
         $this->db->from('tab_device', null, 'nocomsys');
         $this->db->where("cod_device = '{$id}'");
-        $rsDevices = $this->db->executeSelectQuery();
-        return $rsDevices;
+        $rsDevice = $this->db->executeSelectQuery();
+        return $rsDevice;
+    }
+    
+    public function getDeviceNocOm() {
+        
+        $this->getConnection();
+        $this->db->select("*");
+        $this->db->from('tab_device', null, 'nocomsys');
+        $this->db->where("ind_server_monitoring = 'S'");
+        $rsDevice = $this->db->executeSelectQuery();
+        return $rsDevice;
     }
 
 }
