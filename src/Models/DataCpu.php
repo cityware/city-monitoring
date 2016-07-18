@@ -38,26 +38,6 @@ class DataCpu extends AbstractModels {
         }
     }
 
-    public function getDataCpu(array $params) {
-        $this->getConnection();
-
-        $this->db->select("tdc.num_load_one_min");
-        $this->db->select("tdc.num_load_five_min");
-        $this->db->select("tdc.num_load_fifteen_min");
-        $this->db->select("tdc.num_threshoud_cpu_slots");
-        $this->db->select("tdc.num_threshoud_cpu_cores");
-        $this->db->select("tdc.num_threshoud_cpu_ht");
-        $this->db->from('tab_data_cpu', 'tdc', 'nocomdata');
-        $this->db->where("tdc.cod_device = '{$params['cod_device']}'");
-        $this->db->where("tdc.dte_register >= '{$params['dte_start']}'");
-        $this->db->where("tdc.dte_register <= '{$params['dte_finish']}'");
-        $this->db->groupBy("ROUND(UNIX_TIMESTAMP(dte_register) / 300)", true);
-
-        $this->db->setDebug(true);
-        $rsDataCpu = $this->db->executeSelectQuery();
-        return $rsDataCpu;
-    }
-
     public function getDataCpuLoadCurrentHour(array $params) {
         $this->getConnection();
 
@@ -73,7 +53,14 @@ class DataCpu extends AbstractModels {
         $this->db->orderBy("1", true);
         $this->db->setDebug(false);
         $rsDataCpuLoadLastHour = $this->db->executeSelectQuery();
-        return $rsDataCpuLoadLastHour;
+        
+        $return = Array();
+
+        foreach ($rsDataCpuLoadLastHour as $value) {
+            $return[$value['slot']] = $value;
+        }
+
+        return $return;
     }
 
     public function getDataCpuLoadCurrentDay(array $params) {

@@ -14,7 +14,7 @@ namespace Cityware\Monitoring\Jobs\Snmp;
  * @author fsvxavier
  */
 class Network {
-    
+
     /**
      * Return Network Data
      * @param object $snmpConnection
@@ -24,4 +24,5 @@ class Network {
         $return = $snmpConnection->useIface()->returnFullData();
         return $return;
     }
+
 }

@@ -45,6 +45,11 @@ class ParallelJob {
                         $memory = new JobSnmp\Host();
                         $memData = $memory->getHostData($connection);
                         
+                    case 'host':
+                        //Get Snmp System Data
+                        $memory = new JobSnmp\Host();
+                        $memData = $memory->getHostData($connection);
+
                         //Insert system data Snmp in Database
                         $memoryDb = new DbModels\DataHost();
                         $memoryDb->setDataHost($memData, $paramsDevices);
