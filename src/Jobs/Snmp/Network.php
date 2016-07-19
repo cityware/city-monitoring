@@ -38,7 +38,7 @@ class Network {
         
         $interfaceSpeeds = $snmpConnection->useIface()->speeds();
         $interfaceHighSpeeds = $snmpConnection->useIface()->highSpeeds();
-        $interfaceTypes = $snmpConnection->useIface()->types(true);
+        $interfaceTypes = $snmpConnection->useIface()->types();
         
         $aInterfaceIp = $snmpConnection->realWalk1d(self::OID_IF_IP_ADDRESS);
         $aInterfaceIpIndex = $snmpConnection->realWalk1d(self::OID_IF_IP_ADDRESS_INDEX);
@@ -56,8 +56,8 @@ class Network {
         foreach ($interfaceIndexData as $index) {
             $networkData['index'][$index] = $interfaceIndexData[$index];
             $networkData['name'][$index] = $interfaceName[$index];
-            $networkData['oper_status'][$index] = $interfaceOperStatus[$index];
-            $networkData['admin_status'][$index] = $interfaceAdminStatus[$index];
+            $networkData['oper_status'][$index] = ($interfaceOperStatus[$index] == 1) ? true : false;
+            $networkData['admin_status'][$index] = ($interfaceAdminStatus[$index] == 1) ? true : false;
             $networkData['type_desc'][$index] = $interfaceTypes[$index];
             $networkData['phys_address'][$index] = (isset($interfacePhysAddresses[$index]) and !empty($interfacePhysAddresses[$index])) ? $interfacePhysAddresses[$index] : '00:00:00:00:00:00';
             $networkData['ip_address'][$index] = (isset($aInterfaceIpAddress[$index]) and !empty($aInterfaceIpAddress[$index])) ? json_encode($aInterfaceIpAddress[$index]) : json_encode(Array('0.0.0.0'));
@@ -68,7 +68,7 @@ class Network {
             $networkData['speed'][$index] = $interfaceSpeeds[$index];
             $networkData['high_speed'][$index] = $interfaceHighSpeeds[$index];
         }
-        
+       
         return $networkData;
     }
 

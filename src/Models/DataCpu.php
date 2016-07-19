@@ -24,6 +24,7 @@ class DataCpu extends AbstractModels {
             $this->db->insert("num_load_one_min", $params['oneMinute']);
             $this->db->insert("num_load_five_min", $params['fiveMinute']);
             $this->db->insert("num_load_fifteen_min", $params['fifteenMinute']);
+            $this->db->insert("num_load_percentage", $params['loadPercentage']);
             $this->db->insert("num_threshoud_cpu_slots", $paramsDevices['num_slot_processors']);
             $this->db->insert("num_threshoud_cpu_cores", $paramsDevices['num_core_processors']);
             $this->db->insert("num_threshoud_cpu_ht", $paramsDevices['ind_hyper_threading']);

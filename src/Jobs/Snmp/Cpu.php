@@ -26,6 +26,7 @@ class Cpu {
         $return['oneMinute'] = $snmpConnection->useLinux_Cpu()->loadOneMinute();
         $return['fiveMinute'] = $snmpConnection->useLinux_Cpu()->loadFiveMinutes();
         $return['fifteenMinute'] = $snmpConnection->useLinux_Cpu()->loadFifteenMinutes();
+        $return['loadPercentage'] = 0;
         return $return;
     }
 }
