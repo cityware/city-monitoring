@@ -15,9 +15,8 @@ namespace Cityware\Monitoring\Jobs;
  */
 class Ping {
     
-    public function executePing(array $params) {
-        $ping = new \Cityware\Utility\Ping($params['num_ip']);
-
+    public function executePing(array $paramsDevices) {
+        $ping = new \Cityware\Utility\Ping($paramsDevices['num_ip']);
         return $ping->ping();
     }
 

@@ -31,6 +31,7 @@ class Devices extends AbstractModels {
         $this->db->select("*");
         $this->db->from('tab_device', null, 'nocomsys');
         $this->db->where("cod_device = '{$id}'");
+        $this->db->where("ind_status = 'A'");
         $rsDevice = $this->db->executeSelectQuery();
         return $rsDevice;
     }
@@ -41,6 +42,7 @@ class Devices extends AbstractModels {
         $this->db->select("*");
         $this->db->from('tab_device', null, 'nocomsys');
         $this->db->where("ind_server_monitoring = 'S'");
+        $this->db->where("ind_status = 'A'");
         $rsDevice = $this->db->executeSelectQuery();
         return $rsDevice;
     }

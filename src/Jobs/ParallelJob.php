@@ -40,20 +40,23 @@ class ParallelJob {
                         $diskDb->setDataDisk($dskData, $paramsDevices);
                         $diskDb->setIoDataDisk($dskIoData, $paramsDevices);
                         break;
+                    
                     case 'sys':
                         //Get Snmp System Data
-                        $memory = new JobSnmp\Host();
-                        $memData = $memory->getHostData($connection);
-                        
+                        //$memory = new JobSnmp\DataSystem();
+                        //$memData = $memory->getHostData($connection);
+                        break;
+                    
                     case 'host':
                         //Get Snmp System Data
-                        $memory = new JobSnmp\Host();
-                        $memData = $memory->getHostData($connection);
-
+                        $host = new JobSnmp\Host();
+                        $hostData = $host->getHostData($connection);
+                        
                         //Insert system data Snmp in Database
-                        $memoryDb = new DbModels\DataHost();
-                        $memoryDb->setDataHost($memData, $paramsDevices);
+                        $hostDb = new DbModels\DataHost();
+                        $hostDb->setDataHost($hostData, $paramsDevices);
                         break;
+                    
                     case 'mem':
                         //Get Snmp Memory Data
                         $memory = new JobSnmp\Memory();
@@ -63,6 +66,7 @@ class ParallelJob {
                         $memoryDb = new DbModels\DataMemory();
                         $memoryDb->setDataMemory($memData, $paramsDevices);
                         break;
+                    
                     case 'net':
                         //Get Snmp Network Data
                         $network = new JobSnmp\Network();
@@ -72,6 +76,7 @@ class ParallelJob {
                         $networkDb = new DbModels\DataNetwork();
                         $networkDb->setDataNetwork($netData, $paramsDevices);
                         break;
+                    
                     case 'cpu':
                         //Get Snmp CPU Data
                         $cpu = new JobSnmp\Cpu();
@@ -87,7 +92,70 @@ class ParallelJob {
                 }
             }
         } else if ($paramsDevices['ind_snmp_wmi'] == 'W') {
-            
+            foreach ($modelStdMonitoring->getStdMonitoring($paramsDevices['cod_device_type'], $paramsDevices['cod_device']) as $valueStdMonitoring) {
+                switch ($valueStdMonitoring['des_sign']) {
+                    case 'dsk':
+                        //Get Snmp Disk Data
+                        $disk = new JobWmi\Disk();
+                        $dskData = $disk->getDiskData($connection);
+                        //$dskIoData = $disk->getIoDiskData($connection);
+                        
+                        //Insert disk data Snmp in Database
+                        $diskDb = new DbModels\DataDisk();
+                        $diskDb->setDataDisk($dskData, $paramsDevices);
+                        //$diskDb->setIoDataDisk($dskIoData, $paramsDevices);
+                        break;
+                    
+                    case 'sys':
+                        //Get Snmp System Data
+                        //$memory = new JobWmi\Host();
+                        //$memData = $memory->getHostData($connection);
+                        break;
+                    
+                    case 'host':
+                        //Get Snmp System Data
+                        $host = new JobWmi\Host();
+                        $hostData = $host->getHostData($connection);
+                        
+                        //Insert system data Snmp in Database
+                        $hostDb = new DbModels\DataHost();
+                        $hostDb->setDataHost($hostData, $paramsDevices);
+                        break;
+                    
+                    case 'mem':
+                        //Get Snmp Memory Data
+                        $memory = new JobWmi\Memory();
+                        $memData = $memory->getMemoryData($connection);
+                        
+                        //Insert memory data Snmp in Database
+                        $memoryDb = new DbModels\DataMemory();
+                        $memoryDb->setDataMemory($memData, $paramsDevices);
+                        break;
+                    
+                    case 'net':
+                        //Get Snmp Network Data
+                        $network = new JobWmi\Network();
+                        $netData = $network->getNetworkData($connection);
+                        
+                        //Insert network data Snmp in Database
+                        $networkDb = new DbModels\DataNetwork();
+                        $networkDb->setDataNetwork($netData, $paramsDevices);
+                        break;
+                    
+                    case 'cpu':
+                        //Get Snmp CPU Data
+                        $cpu = new JobWmi\Cpu();
+                        $cpuData = $cpu->getCpuData($connection);
+                        
+                        //Insert CPU data Snmp in Database
+                        $cpuDb = new DbModels\DataCpu();
+                        $cpuDb->setDataCpu($cpuData, $paramsDevices);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
         } else {
             //break;
         }

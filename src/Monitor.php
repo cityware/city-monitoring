@@ -32,7 +32,7 @@ class Monitor {
 
         $managerDevices = new \Cityware\ParallelJobs\ForkManager();
         $managerDevices->setAutoStart(true);
-        //$managerDevices->timeout(30);
+        $managerDevices->timeout(50);
         $managerDevices->setMemoryManager($memorySharedManagerDevice);
         $managerDevices->setStorage('file');
         $managerDevices->setShareResult(false);
@@ -56,8 +56,8 @@ class Monitor {
         for ($indexParallelClear = $indexParallel; $indexParallelClear > 0; $indexParallelClear--) {
             $memorySharedManagerDevice->clear($indexParallelClear);
         }
-        $managerDevices->closeChildren();
-        $managerDevices->handler(SIGKILL);
+        //$managerDevices->closeChildren();
+        //$managerDevices->handler(SIGKILL);
     }
 
 }

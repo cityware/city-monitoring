@@ -52,8 +52,8 @@ class DataNetwork extends AbstractModels {
                     $this->db->insert("cod_device", $paramsDevices['cod_device']);
                     $this->db->insert("nam_interface", $params['name'][$index]);
                     $this->db->insert("des_type_interface", $params['type_desc'][$index]);
-                    $this->db->insert("des_phys_address", (isset($params['phys_address'][$index])) ? $params['phys_address'][$index] : '0:0:0:0:0:0');
-                    $this->db->insert("des_ip_address", (isset($params['ip_address'][$index])) ? json_encode($params['ip_address'][$index]) : json_encode(Array('0.0.0.0')));
+                    $this->db->insert("des_phys_address", $params['phys_address'][$index]);
+                    $this->db->insert("des_ip_address", $params['ip_address'][$index]);
                     $this->db->insert("ind_oper_status", (($params['oper_status'][$index]) ? "U" : "D"));
                     $this->db->insert("ind_admin_status", (($params['admin_status'][$index]) ? "U" : "D"));
                     $this->db->insert("num_in_octets", $params['in_octets'][$index]);
@@ -92,8 +92,8 @@ class DataNetwork extends AbstractModels {
             $totalInOct = abs($lastData['num_in_octets'] - $params['num_in_octets']);
             $totalOutOct = abs($lastData['num_out_octets'] - $params['num_out_octets']);
 
-            $avgInBitRate = ($totalInOct * 8) / $seconds;
-            $avgOutBitRate = ($totalOutOct * 8) / $seconds;
+            $avgInBitRate = ($seconds > 0) ? (($totalInOct * 8) / $seconds) : 0;
+            $avgOutBitRate = ($seconds > 0) ? (($totalOutOct * 8) / $seconds) : 0;
 
             $returnAvgBitRate = Array(
                 'in_bit_rate' => $avgInBitRate,

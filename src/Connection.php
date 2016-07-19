@@ -41,13 +41,13 @@ class Connection {
 
             $this->setSnmpCon($connection);
         } else if ($type == 'W') {
-
             $host = (!empty($params['num_ip'])) ? $params['num_ip'] : '127.0.0.1';
-            $username = (!empty($params['num_ip'])) ? $params['num_ip'] : null;
-            $password = (!empty($params['num_ip'])) ? $params['num_ip'] : null;
-            $domain = (!empty($params['num_ip'])) ? $params['num_ip'] : null;
-            $connection = new \Cityware\Wmi\Wmic($host, $username, $password, $domain);
-            $this->setWmiCon($connection->connect('root\\cimv2'));
+            $username = (!empty($params['des_wmi_user'])) ? $params['des_wmi_user'] : null;
+            $password = (!empty($params['des_wmi_password'])) ? $params['des_wmi_password'] : null;
+            $domain = (!empty($params['des_wmi_domain'])) ? $params['des_wmi_domain'] : null;
+            $wmi = new \Cityware\Wmi\Wmi($host, $username, $password, $domain);
+            $connection = $wmi->connect('root\\cimv2');
+            $this->setWmiCon($connection);
         }
 
         return $connection;

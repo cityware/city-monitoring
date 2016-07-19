@@ -23,7 +23,6 @@ class DataDisk extends AbstractModels {
             $this->db->transaction();
             foreach ($params['index'] as $index) {
                 if ($params['total_size'][$index] > 0) {
-
                     $used_bytes = $params['total_size'][$index] * ($params['used_percent'][$index] / 100);
                     $this->db->insert("cod_device", $paramsDevices['cod_device']);
                     $this->db->insert("des_path", $params['path'][$index]);
