@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace Cityware\Monitoring\Jobs\Snmp;
+namespace Cityware\Monitoring\Jobs\Snmp\Devices;
 
 /**
  * Description of Network

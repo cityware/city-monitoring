@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace Cityware\Monitoring\Jobs\Snmp\Service;
+namespace Cityware\Monitoring\Jobs\Snmp\Services;
 
 /**
  * Description of Cpu
@@ -22,7 +22,7 @@ class ApacheHttpd {
      */
     public function getServiceData($snmpConnection) {
 
-        $apacheHttpdData = $snmpConnection->realWalkToArray('NET-SNMP-EXTEND-MIB::nsExtendOutLine."apache"', true);
+        $apacheHttpdData = $snmpConnection->realWalkToArray('NET-SNMP-EXTEND-MIB::nsExtendOutLine."Apache-HTTPd"', true);
 
         $return = Array();
 

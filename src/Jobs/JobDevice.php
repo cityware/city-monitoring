@@ -17,9 +17,9 @@ use Cityware\Monitoring\Models AS DbModels;
  *
  * @author fsvxavier
  */
-class ParallelJob {
+class JobDevice {
 
-    public function parallelJobMonitor(array $paramsDevices) {
+    public function jobDeviceMonitor(array $paramsDevices) {
 
         $modelStdMonitoring = new \Cityware\Monitoring\Models\StandardMonitoring();
 
@@ -31,12 +31,12 @@ class ParallelJob {
                 switch ($valueStdMonitoring['des_sign']) {
                     case 'dsk':
                         //Get Snmp Disk Data
-                        $disk = new JobSnmp\Disk();
+                        $disk = new JobSnmp\Devices\Disk();
                         $dskData = $disk->getDiskData($connection);
                         $dskIoData = $disk->getIoDiskData($connection);
                         
                         //Insert disk data Snmp in Database
-                        $diskDb = new DbModels\DataDisk();
+                        $diskDb = new DbModels\Devices\DataDisk();
                         $diskDb->setDataDisk($dskData, $paramsDevices);
                         $diskDb->setIoDataDisk($dskIoData, $paramsDevices);
                         break;
@@ -49,41 +49,41 @@ class ParallelJob {
                     
                     case 'host':
                         //Get Snmp System Data
-                        $host = new JobSnmp\Host();
+                        $host = new JobSnmp\Devices\Host();
                         $hostData = $host->getHostData($connection);
                         
                         //Insert system data Snmp in Database
-                        $hostDb = new DbModels\DataHost();
+                        $hostDb = new DbModels\Devices\DataHost();
                         $hostDb->setDataHost($hostData, $paramsDevices);
                         break;
                     
                     case 'mem':
                         //Get Snmp Memory Data
-                        $memory = new JobSnmp\Memory();
+                        $memory = new JobSnmp\Devices\Memory();
                         $memData = $memory->getMemoryData($connection);
                         
                         //Insert memory data Snmp in Database
-                        $memoryDb = new DbModels\DataMemory();
+                        $memoryDb = new DbModels\Devices\DataMemory();
                         $memoryDb->setDataMemory($memData, $paramsDevices);
                         break;
                     
                     case 'net':
                         //Get Snmp Network Data
-                        $network = new JobSnmp\Network();
+                        $network = new JobSnmp\Devices\Network();
                         $netData = $network->getNetworkData($connection);
                         
                         //Insert network data Snmp in Database
-                        $networkDb = new DbModels\DataNetwork();
+                        $networkDb = new DbModels\Devices\DataNetwork();
                         $networkDb->setDataNetwork($netData, $paramsDevices);
                         break;
                     
                     case 'cpu':
                         //Get Snmp CPU Data
-                        $cpu = new JobSnmp\Cpu();
+                        $cpu = new JobSnmp\Devices\Cpu();
                         $cpuData = $cpu->getCpuData($connection);
                         
                         //Insert CPU data Snmp in Database
-                        $cpuDb = new DbModels\DataCpu();
+                        $cpuDb = new DbModels\Devices\DataCpu();
                         $cpuDb->setDataCpu($cpuData, $paramsDevices);
                         break;
 
@@ -96,59 +96,59 @@ class ParallelJob {
                 switch ($valueStdMonitoring['des_sign']) {
                     case 'dsk':
                         //Get Snmp Disk Data
-                        $disk = new JobWmi\Disk();
+                        $disk = new JobWmi\Devices\Disk();
                         $dskData = $disk->getDiskData($connection);
                         //$dskIoData = $disk->getIoDiskData($connection);
                         
                         //Insert disk data Snmp in Database
-                        $diskDb = new DbModels\DataDisk();
+                        $diskDb = new DbModels\Devices\DataDisk();
                         $diskDb->setDataDisk($dskData, $paramsDevices);
                         //$diskDb->setIoDataDisk($dskIoData, $paramsDevices);
                         break;
                     
                     case 'sys':
                         //Get Snmp System Data
-                        //$memory = new JobWmi\Host();
+                        //$memory = new JobWmi\Devices\Host();
                         //$memData = $memory->getHostData($connection);
                         break;
                     
                     case 'host':
                         //Get Snmp System Data
-                        $host = new JobWmi\Host();
+                        $host = new JobWmi\Devices\Host();
                         $hostData = $host->getHostData($connection);
                         
                         //Insert system data Snmp in Database
-                        $hostDb = new DbModels\DataHost();
+                        $hostDb = new DbModels\Devices\DataHost();
                         $hostDb->setDataHost($hostData, $paramsDevices);
                         break;
                     
                     case 'mem':
                         //Get Snmp Memory Data
-                        $memory = new JobWmi\Memory();
+                        $memory = new JobWmi\Devices\Memory();
                         $memData = $memory->getMemoryData($connection);
                         
                         //Insert memory data Snmp in Database
-                        $memoryDb = new DbModels\DataMemory();
+                        $memoryDb = new DbModels\Devices\DataMemory();
                         $memoryDb->setDataMemory($memData, $paramsDevices);
                         break;
                     
                     case 'net':
                         //Get Snmp Network Data
-                        $network = new JobWmi\Network();
+                        $network = new JobWmi\Devices\Network();
                         $netData = $network->getNetworkData($connection);
                         
                         //Insert network data Snmp in Database
-                        $networkDb = new DbModels\DataNetwork();
+                        $networkDb = new DbModels\Devices\DataNetwork();
                         $networkDb->setDataNetwork($netData, $paramsDevices);
                         break;
                     
                     case 'cpu':
                         //Get Snmp CPU Data
-                        $cpu = new JobWmi\Cpu();
+                        $cpu = new JobWmi\Devices\Cpu();
                         $cpuData = $cpu->getCpuData($connection);
                         
                         //Insert CPU data Snmp in Database
-                        $cpuDb = new DbModels\DataCpu();
+                        $cpuDb = new DbModels\Devices\DataCpu();
                         $cpuDb->setDataCpu($cpuData, $paramsDevices);
                         break;
 

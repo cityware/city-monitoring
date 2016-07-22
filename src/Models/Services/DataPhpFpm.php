@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace Cityware\Monitoring\Models;
+namespace Cityware\Monitoring\Models\Services;
 
 /**
  * Description of DataPhpFpm

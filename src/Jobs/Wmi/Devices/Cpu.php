@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace Cityware\Monitoring\Jobs\Wmi;
+namespace Cityware\Monitoring\Jobs\Wmi\Devices;
 
 /**
  * Description of Cpu

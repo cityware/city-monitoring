@@ -21,6 +21,7 @@ class Devices extends AbstractModels {
         $this->getConnection();
         $this->db->select("*");
         $this->db->from('tab_device', null, 'nocomsys');
+        $this->db->where("ind_status = 'A'");
         $rsDevices = $this->db->executeSelectQuery();
         return $rsDevices;
     }

@@ -6,14 +6,15 @@
  * and open the template in the editor.
  */
 
-namespace Cityware\Monitoring\Models;
+namespace Cityware\Monitoring\Models\Services;
+use Cityware\Monitoring\Models\AbstractModels;
 
 /**
  * Description of DataCpu
  *
  * @author fsvxavier
  */
-class DataCpu extends AbstractModels {
+class DataApacheHttpd extends AbstractModels {
 
     public function setDataCpu(array $params, array $paramsDevices) {
         $this->getConnection();
@@ -46,6 +47,7 @@ class DataCpu extends AbstractModels {
         $this->db->select("avg(tdc.num_load_one_min)", 'num_load_one_min', true);
         $this->db->select("avg(tdc.num_load_five_min)", 'num_load_five_min', true);
         $this->db->select("avg(tdc.num_load_fifteen_min)", 'num_load_fifteen_min', true);
+        $this->db->select("avg(tdc.num_load_percentage)", 'num_load_percentage', true);
         $this->db->from('tab_data_cpu', 'tdc', 'nocomdata');
         $this->db->where("tdc.cod_device = '{$params['cod_device']}'");
         $this->db->where("tdc.dte_register >= '{$params['dte_start']}'");
@@ -71,6 +73,7 @@ class DataCpu extends AbstractModels {
         $this->db->select("avg(tdc.num_load_one_min)", 'num_load_one_min', true);
         $this->db->select("avg(tdc.num_load_five_min)", 'num_load_five_min', true);
         $this->db->select("avg(tdc.num_load_fifteen_min)", 'num_load_fifteen_min', true);
+        $this->db->select("avg(tdc.num_load_percentage)", 'num_load_percentage', true);
         $this->db->from('tab_data_cpu', 'tdc', 'nocomdata');
         $this->db->where("tdc.cod_device = '{$params['cod_device']}'");
         $this->db->where("tdc.dte_register >= '{$params['dte_start']}'");
@@ -96,6 +99,7 @@ class DataCpu extends AbstractModels {
         $this->db->select("avg(tdc.num_load_one_min)", 'num_load_one_min', true);
         $this->db->select("avg(tdc.num_load_five_min)", 'num_load_five_min', true);
         $this->db->select("avg(tdc.num_load_fifteen_min)", 'num_load_fifteen_min', true);
+        $this->db->select("avg(tdc.num_load_percentage)", 'num_load_percentage', true);
         $this->db->from('tab_data_cpu', 'tdc', 'nocomdata');
         $this->db->where("tdc.cod_device = '{$params['cod_device']}'");
         $this->db->where("tdc.dte_register >= '{$params['dte_start']}'");
@@ -121,6 +125,7 @@ class DataCpu extends AbstractModels {
         $this->db->select("avg(tdc.num_load_one_min)", 'num_load_one_min', true);
         $this->db->select("avg(tdc.num_load_five_min)", 'num_load_five_min', true);
         $this->db->select("avg(tdc.num_load_fifteen_min)", 'num_load_fifteen_min', true);
+        $this->db->select("avg(tdc.num_load_percentage)", 'num_load_percentage', true);
         $this->db->from('tab_data_cpu', 'tdc', 'nocomdata');
         $this->db->where("tdc.cod_device = '{$params['cod_device']}'");
         $this->db->where("tdc.dte_register >= '{$params['dte_start']}'");

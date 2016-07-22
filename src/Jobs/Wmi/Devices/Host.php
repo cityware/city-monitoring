@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace Cityware\Monitoring\Jobs\Wmi;
+namespace Cityware\Monitoring\Jobs\Wmi\Devices;
 
 /**
  * Description of Cpu
@@ -32,7 +32,8 @@ class Host {
             $return['running_process'] = 0; //$wmi_operatingsystem->NumberOfProcesses;
         }
 
-        $return['uptime'] = $this->calculationUpTime($LocalDateTime, $LastBootUpTime);
+        
+        $return['uptime'] = \Cityware\Utility\UpTime::calculationUpTime($LocalDateTime, $LastBootUpTime);
 
         return $return;
     }

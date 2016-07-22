@@ -6,7 +6,8 @@
  * and open the template in the editor.
  */
 
-namespace Cityware\Monitoring\Models;
+namespace Cityware\Monitoring\Models\Devices;
+use Cityware\Monitoring\Models\AbstractModels;
 
 /**
  * Description of DataHost
