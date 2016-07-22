@@ -7,6 +7,7 @@
  */
 
 namespace Cityware\Monitoring\Models\Services;
+
 use Cityware\Monitoring\Models\AbstractModels;
 
 /**
@@ -16,31 +17,28 @@ use Cityware\Monitoring\Models\AbstractModels;
  */
 class DataApacheHttpd extends AbstractModels {
 
-    public function setDataCpu(array $params, array $paramsDevices) {
+    public function setDataApacheHttpd(array $params, array $paramsDevices) {
         $this->getConnection();
         try {
             $this->db->transaction();
-
+           
+            foreach ($params as $key => $value) {
+                $this->db->insert($key, (float) $value);
+            }
             $this->db->insert("cod_device", $paramsDevices['cod_device']);
-            $this->db->insert("num_load_one_min", $params['oneMinute']);
-            $this->db->insert("num_load_five_min", $params['fiveMinute']);
-            $this->db->insert("num_load_fifteen_min", $params['fifteenMinute']);
-            $this->db->insert("num_load_percentage", $params['loadPercentage']);
-            $this->db->insert("num_threshoud_cpu_slots", $paramsDevices['num_slot_processors']);
-            $this->db->insert("num_threshoud_cpu_cores", $paramsDevices['num_core_processors']);
-            $this->db->insert("num_threshoud_cpu_ht", $paramsDevices['ind_hyper_threading']);
             $this->db->insert("dte_register", date('Y-m-d H:i:s'));
-            $this->db->from('tab_data_cpu', null, 'nocomdata');
+            $this->db->from('tab_data_serv_apache', null, 'nocomdata');
+            $this->db->setdebug(false);
             $this->db->executeInsertQuery();
 
             $this->db->commit();
-        } catch (Exception $exc) {
+        } catch (\Exception $exc) {
             $this->db->rollback();
-            throw new Exception('Error While Insert Data CPU for JOB PARALLEL - ' . $exc->getMessage());
+            throw new \Exception('Error While Insert Data Service Apache Httpd for JOB PARALLEL - ' . $exc->getMessage());
         }
     }
 
-    public function getDataCpuLoadCurrentHour(array $params) {
+    public function getDataApacheHttpdCurrentHour(array $params) {
         $this->getConnection();
 
         $this->db->select("trunc(EXTRACT(MINUTE from dte_register) / 5)", 'slot', true);
@@ -66,7 +64,7 @@ class DataApacheHttpd extends AbstractModels {
         return $return;
     }
 
-    public function getDataCpuLoadCurrentDay(array $params) {
+    public function getDataApacheHttpdCurrentDay(array $params) {
         $this->getConnection();
 
         $this->db->select("trunc(EXTRACT(HOUR from dte_register) / 1)", 'slot', true);
@@ -92,7 +90,7 @@ class DataApacheHttpd extends AbstractModels {
         return $return;
     }
 
-    public function getDataCpuLoadCurrentMonth(array $params) {
+    public function getDataApacheHttpdCurrentMonth(array $params) {
         $this->getConnection();
 
         $this->db->select("trunc(EXTRACT(DAY from dte_register) / 1)", 'slot', true);
@@ -118,7 +116,7 @@ class DataApacheHttpd extends AbstractModels {
         return $return;
     }
 
-    public function getDataCpuLoadCurrentYear(array $params) {
+    public function getDataApacheHttpdCurrentYear(array $params) {
         $this->getConnection();
 
         $this->db->select("trunc(EXTRACT(MONTH from dte_register) / 1)", 'slot', true);

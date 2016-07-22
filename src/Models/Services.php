@@ -41,6 +41,7 @@ class Services extends AbstractModels {
         $this->getConnection();
         $this->db->select("ts.cod_device_type");
         $this->db->select("ts.nam_service");
+        $this->db->select("ts.des_sign");
         $this->db->select("tds.des_user");
         $this->db->select("tds.des_password");
         $this->db->select("tds.des_port");
@@ -50,6 +51,7 @@ class Services extends AbstractModels {
         $this->db->where("tds.cod_device = '{$codDevice}'");
         $this->db->where("ts.ind_status = 'A'");
         $this->db->where("tds.ind_status = 'A'");
+        $this->db->setdebug(false);
         $rsDeviceServices = $this->db->executeSelectQuery();
         return $rsDeviceServices;
     }
