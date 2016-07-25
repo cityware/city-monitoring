@@ -8,40 +8,33 @@
 
 namespace Cityware\Monitoring\Models\Services;
 
+use Cityware\Monitoring\Models\AbstractModels;
 /**
  * Description of DataNginx
  *
  * @author fsvxavier
  */
-class DataNginx {
+class DataNginx extends AbstractModels {
+    
+    public function setDataNginx(array $params, array $paramsDevices) {
+        $this->getConnection();
+        try {
+            $this->db->transaction();
+           
+            foreach ($params as $key => $value) {
+                $this->db->insert($key, (float) $value);
+            }
+            $this->db->insert("cod_device", $paramsDevices['cod_device']);
+            $this->db->insert("dte_register", date('Y-m-d H:i:s'));
+            $this->db->from('tab_data_serv_nginx', null, 'nocomdata');
+            $this->db->setdebug(false);
+            $this->db->executeInsertQuery();
 
-    private function prepareDataNginxStatus($param) {
-        $ret = file_get_contents('http://172.16.20.244/nginx_status');
-        $convert = explode("\n", $ret); //create array separate by new line
-
-        $nginx = Array();
-
-        $dataReplace = Array('Active connections: ', 'Reading: ', 'Writing: ', 'Waiting: ');
-        $serverConnenctions = explode(" ", trim($convert[2]));
-        $rwwNginx = trim(str_replace($dataReplace, "", $convert[3]));
-        $rwwNginxData = explode(" ", trim($rwwNginx));
-
-        $nginx['activeConnections'] = trim(str_replace($dataReplace, "", $convert[0]));
-
-        $nginx['acceptedConnections'] = $serverConnenctions[0];
-        $nginx['handledConnections'] = $serverConnenctions[1];
-        $nginx['handledRequests'] = $serverConnenctions[2];
-
-        $nginx['reading'] = $rwwNginxData[0];
-        $nginx['writing'] = $rwwNginxData[1];
-        $nginx['waiting'] = $rwwNginxData[2];
-
-        $nginx['requestsPerConnections'] = $nginx['handledRequests'] / $nginx['handledConnections'];
-        $nginx['keepAliveConnections'] = $nginx['aConnections'] - ($nginx['reading'] + $nginx['writing']);
-
-        echo '<pre>';
-        print_r($nginx);
-        exit;
+            $this->db->commit();
+        } catch (\Exception $exc) {
+            $this->db->rollback();
+            throw new \Exception('Error While Insert Data Service Nginx for JOB PARALLEL - ' . $exc->getMessage());
+        }
     }
 
 }

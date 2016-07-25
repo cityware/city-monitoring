@@ -8,20 +8,32 @@
 
 namespace Cityware\Monitoring\Models\Services;
 
+use Cityware\Monitoring\Models\AbstractModels;
 /**
  * Description of DataPhpFpm
  *
  * @author fsvxavier
  */
-class DataPhpFpm {
+class DataPhpFpm extends AbstractModels {
+    
+    public function setDataPhpFpm(array $params, array $paramsDevices) {
+        $this->getConnection();
+        try {
+            $this->db->transaction();
+           
+            foreach ($params as $key => $value) {
+                $this->db->insert($key, $value);
+            }
+            $this->db->insert("cod_device", $paramsDevices['cod_device']);
+            $this->db->insert("dte_register", date('Y-m-d H:i:s'));
+            $this->db->from('tab_data_serv_phpfpm', null, 'nocomdata');
+            $this->db->setdebug(false);
+            $this->db->executeInsertQuery();
 
-    private function prepareDataPhpFpmStatus() {
-        $php = file_get_contents('http://172.16.20.244/php_status?full&json');
-        $dataPhpFpm = json_decode($php);
-
-        echo '<pre>';
-        print_r($dataPhpFpm);
-        exit;
+            $this->db->commit();
+        } catch (\Exception $exc) {
+            $this->db->rollback();
+            throw new \Exception('Error While Insert Data Service Nginx for JOB PARALLEL - ' . $exc->getMessage());
+        }
     }
-
 }

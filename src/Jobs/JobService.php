@@ -39,6 +39,26 @@ class JobService {
                         $diskDb->setDataApacheHttpd($apacheHttpdData, $paramsDevices);
                         break;
                     
+                    case 'ngx':
+                        //Get Snmp Disk Data
+                        $apacheHttpd = new JobSnmp\Services\Nginx();
+                        $apacheHttpdData = $apacheHttpd->getServiceData($connection);
+                        
+                        //Insert disk data Snmp in Database
+                        $diskDb = new DbModels\Services\DataNginx();
+                        $diskDb->setDataNginx($apacheHttpdData, $paramsDevices);
+                        break;
+                    
+                    case 'phpfpm':
+                        //Get Snmp Disk Data
+                        $apacheHttpd = new JobSnmp\Services\PhpFpm();
+                        $apacheHttpdData = $apacheHttpd->getServiceData($connection);
+                        
+                        //Insert disk data Snmp in Database
+                        $diskDb = new DbModels\Services\DataPhpFpm();
+                        $diskDb->setDataPhpFpm($apacheHttpdData, $paramsDevices);
+                        break;
+                    
                     default:
                         break;
                 }
