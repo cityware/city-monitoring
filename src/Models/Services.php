@@ -40,8 +40,10 @@ class Services extends AbstractModels {
         
         $this->getConnection();
         $this->db->select("ts.cod_device_type");
+        $this->db->select("ts.cod_service");
         $this->db->select("ts.nam_service");
         $this->db->select("ts.des_sign");
+        $this->db->select("ts.des_icon");
         $this->db->select("tds.des_user");
         $this->db->select("tds.des_password");
         $this->db->select("tds.des_port");

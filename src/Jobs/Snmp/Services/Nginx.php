@@ -21,19 +21,30 @@ class Nginx {
      * @return array
      */
     public function getServiceData($snmpConnection) {
+        
+        /*
+        $objPing = new \Cityware\Utility\Ping($snmpConnection->getHost());
+        $objPing->setTypeCon('udp');
+        $objPing->setPort(160);
+        
+        echo '<pre>';
+        var_dump($objPing->ping());
+        exit;
+         * 
+         */
 
         $nginxData = $snmpConnection->realWalkToArray('NET-SNMP-EXTEND-MIB::nsExtendOutLine."Nginx"', true);
         
         $return = Array();
 
-        $return['num_active_connections'] = $nginxData[1];
-        $return['num_accepted_connections'] = $nginxData[2];
-        $return['num_handled_connections'] = $nginxData[3];
-        $return['num_handled_requests'] = $nginxData[4];
-        $return['num_reading'] = $nginxData[5];
-        $return['num_writing'] = $nginxData[6];
-        $return['num_waiting'] = $nginxData[7];
-        $return['num_requests_connections'] = $return['num_handled_requests'] / $return['num_handled_connections'];
+        $return['num_active_connections'] = (isset($nginxData[1])) ? $nginxData[1] : 0;
+        $return['num_accepted_connections'] = (isset($nginxData[2])) ? $nginxData[2] : 0;
+        $return['num_handled_connections'] = (isset($nginxData[3])) ? $nginxData[3] : 0;
+        $return['num_handled_requests'] = (isset($nginxData[4])) ? $nginxData[4] : 0;
+        $return['num_reading'] = (isset($nginxData[5])) ? $nginxData[5] : 0;
+        $return['num_writing'] = (isset($nginxData[6])) ? $nginxData[6] : 0;
+        $return['num_waiting'] = (isset($nginxData[7])) ? $nginxData[7] : 0;
+        $return['num_requests_connections'] = ($return['num_handled_connections'] > 0) ? $return['num_handled_requests'] / $return['num_handled_connections'] : 0;
         $return['num_keep_alive_connections'] = $return['num_active_connections'] - ($return['num_reading'] + $return['num_writing']);
 
         return $return;

@@ -21,7 +21,7 @@ class PhpFpm {
      * @return array
      */
     public function getServiceData($snmpConnection) {
-
+        
         $phpFpmData = $snmpConnection->realWalkToArray('NET-SNMP-EXTEND-MIB::nsExtendOutLine."Php-Fpm"', true);
         
         $return = Array();
