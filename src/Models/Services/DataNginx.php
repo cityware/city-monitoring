@@ -41,14 +41,22 @@ class DataNginx extends AbstractModels {
         $this->getConnection();
 
         $this->db->select("trunc(EXTRACT(MINUTE from dte_register) / 5)", 'slot', true);
-        $this->db->select("avg(tdsn.num_active_connections)", 'num_active_connections', true);
+        
+        $this->db->select("avg(tdsn.num_active_connections)", 'avg_active_connections', true);
+        $this->db->select("max(tdsn.num_active_connections)", 'max_active_connections', true);
+        $this->db->select("sum(tdsn.num_active_connections)", 'sum_active_connections', true);
+        
         $this->db->select("avg(tdsn.num_accepted_connections)", 'num_accepted_connections', true);
         $this->db->select("avg(tdsn.num_handled_connections)", 'num_handled_connections', true);
         $this->db->select("avg(tdsn.num_handled_requests)", 'num_handled_requests', true);
         $this->db->select("avg(tdsn.num_reading)", 'num_reading', true);
         $this->db->select("avg(tdsn.num_writing)", 'num_writing', true);
         $this->db->select("avg(tdsn.num_waiting)", 'num_waiting', true);
-        $this->db->select("avg(tdsn.num_requests_connections)", 'num_requests_connections', true);
+        
+        $this->db->select("avg(tdsn.num_requests_connections)", 'avg_requests_connections', true);
+        $this->db->select("max(tdsn.num_requests_connections)", 'max_requests_connections', true);
+        $this->db->select("sum(tdsn.num_requests_connections)", 'sum_requests_connections', true);
+        
         $this->db->select("avg(tdsn.num_keep_alive_connections)", 'num_keep_alive_connections', true);
         $this->db->from('tab_data_serv_nginx', 'tdsn', 'nocomdata');
         $this->db->where("tdsn.cod_device = '{$params['cod_device']}'");

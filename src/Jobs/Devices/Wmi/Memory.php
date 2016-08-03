@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace Cityware\Monitoring\Jobs\Wmi\Devices;
+namespace Cityware\Monitoring\Jobs\Devices\Wmi;
 
 /**
  * Description of Memory

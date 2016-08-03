@@ -8,8 +8,8 @@
 
 namespace Cityware\Monitoring\Jobs;
 
-use Cityware\Monitoring\Jobs\Snmp AS JobSnmp;
-use Cityware\Monitoring\Jobs\Wmi AS JobWmi;
+use Cityware\Monitoring\Jobs\Devices\Snmp AS JobSnmp;
+use Cityware\Monitoring\Jobs\Devices\Wmi AS JobWmi;
 use Cityware\Monitoring\Models AS DbModels;
 
 /**
@@ -31,7 +31,7 @@ class JobDevice {
                 switch ($valueStdMonitoring['des_sign']) {
                     case 'dsk':
                         //Get Snmp Disk Data
-                        $disk = new JobSnmp\Devices\Disk();
+                        $disk = new JobSnmp\Disk();
                         $dskData = $disk->getDiskData($connection);
                         $dskIoData = $disk->getIoDiskData($connection);
                         
@@ -49,7 +49,7 @@ class JobDevice {
                     
                     case 'host':
                         //Get Snmp System Data
-                        $host = new JobSnmp\Devices\Host();
+                        $host = new JobSnmp\Host();
                         $hostData = $host->getHostData($connection);
                         
                         //Insert system data Snmp in Database
@@ -59,7 +59,7 @@ class JobDevice {
                     
                     case 'mem':
                         //Get Snmp Memory Data
-                        $memory = new JobSnmp\Devices\Memory();
+                        $memory = new JobSnmp\Memory();
                         $memData = $memory->getMemoryData($connection);
                         
                         //Insert memory data Snmp in Database
@@ -69,7 +69,7 @@ class JobDevice {
                     
                     case 'net':
                         //Get Snmp Network Data
-                        $network = new JobSnmp\Devices\Network();
+                        $network = new JobSnmp\Network();
                         $netData = $network->getNetworkData($connection);
                         
                         //Insert network data Snmp in Database
@@ -79,7 +79,7 @@ class JobDevice {
                     
                     case 'cpu':
                         //Get Snmp CPU Data
-                        $cpu = new JobSnmp\Devices\Cpu();
+                        $cpu = new JobSnmp\Cpu();
                         $cpuData = $cpu->getCpuData($connection);
                         
                         //Insert CPU data Snmp in Database
@@ -96,7 +96,7 @@ class JobDevice {
                 switch ($valueStdMonitoring['des_sign']) {
                     case 'dsk':
                         //Get Snmp Disk Data
-                        $disk = new JobWmi\Devices\Disk();
+                        $disk = new JobWmi\Disk();
                         $dskData = $disk->getDiskData($connection);
                         //$dskIoData = $disk->getIoDiskData($connection);
                         
@@ -108,13 +108,13 @@ class JobDevice {
                     
                     case 'sys':
                         //Get Snmp System Data
-                        //$memory = new JobWmi\Devices\Host();
+                        //$memory = new JobWmi\Host();
                         //$memData = $memory->getHostData($connection);
                         break;
                     
                     case 'host':
                         //Get Snmp System Data
-                        $host = new JobWmi\Devices\Host();
+                        $host = new JobWmi\Host();
                         $hostData = $host->getHostData($connection);
                         
                         //Insert system data Snmp in Database
@@ -124,7 +124,7 @@ class JobDevice {
                     
                     case 'mem':
                         //Get Snmp Memory Data
-                        $memory = new JobWmi\Devices\Memory();
+                        $memory = new JobWmi\Memory();
                         $memData = $memory->getMemoryData($connection);
                         
                         //Insert memory data Snmp in Database
@@ -134,7 +134,7 @@ class JobDevice {
                     
                     case 'net':
                         //Get Snmp Network Data
-                        $network = new JobWmi\Devices\Network();
+                        $network = new JobWmi\Network();
                         $netData = $network->getNetworkData($connection);
                         
                         //Insert network data Snmp in Database
@@ -144,7 +144,7 @@ class JobDevice {
                     
                     case 'cpu':
                         //Get Snmp CPU Data
-                        $cpu = new JobWmi\Devices\Cpu();
+                        $cpu = new JobWmi\Cpu();
                         $cpuData = $cpu->getCpuData($connection);
                         
                         //Insert CPU data Snmp in Database

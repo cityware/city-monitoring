@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace Cityware\Monitoring\Jobs\Snmp\Devices;
+namespace Cityware\Monitoring\Jobs\Devices\Snmp;
 
 /**
  * Description of Disk.

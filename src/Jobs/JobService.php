@@ -8,8 +8,9 @@
 
 namespace Cityware\Monitoring\Jobs;
 
-use Cityware\Monitoring\Jobs\Snmp AS JobSnmp;
-use Cityware\Monitoring\Jobs\Wmi AS JobWmi;
+use Cityware\Monitoring\Jobs\Services\Snmp AS JobSnmp;
+use Cityware\Monitoring\Jobs\Services\Wmi AS JobWmi;
+use Cityware\Monitoring\Jobs\Services\Database AS JobDatabase;
 use Cityware\Monitoring\Models AS DbModels;
 
 /**
@@ -30,33 +31,40 @@ class JobService {
             foreach ($modelServices->getDeviceServices($paramsDevices['cod_device_type'], $paramsDevices['cod_device']) as $valueServices) {
                 switch ($valueServices['des_sign']) {
                     case 'aphttp':
-                        //Get Snmp Disk Data
-                        $apacheHttpd = new JobSnmp\Services\ApacheHttpd();
+                        $apacheHttpd = new JobSnmp\ApacheHttpd();
                         $apacheHttpdData = $apacheHttpd->getServiceData($connection);
                         
-                        //Insert disk data Snmp in Database
-                        $diskDb = new DbModels\Services\DataApacheHttpd();
-                        $diskDb->setDataApacheHttpd($apacheHttpdData, $paramsDevices);
+                        $apacheHttpdDb = new DbModels\Services\DataApacheHttpd();
+                        $apacheHttpdDb->setDataApacheHttpd($apacheHttpdData, $paramsDevices);
                         break;
                     
                     case 'ngx':
-                        //Get Snmp Disk Data
-                        $apacheHttpd = new JobSnmp\Services\Nginx();
-                        $apacheHttpdData = $apacheHttpd->getServiceData($connection);
+                        $nginx = new JobSnmp\Nginx();
+                        $nginxData = $nginx->getServiceData($connection);
                         
-                        //Insert disk data Snmp in Database
-                        $diskDb = new DbModels\Services\DataNginx();
-                        $diskDb->setDataNginx($apacheHttpdData, $paramsDevices);
+                        $nginxDb = new DbModels\Services\DataNginx();
+                        $nginxDb->setDataNginx($nginxData, $paramsDevices);
                         break;
                     
                     case 'phpfpm':
-                        //Get Snmp Disk Data
-                        $apacheHttpd = new JobSnmp\Services\PhpFpm();
-                        $apacheHttpdData = $apacheHttpd->getServiceData($connection);
+                        $phpFpm = new JobSnmp\PhpFpm();
+                        $phpFpmData = $phpFpm->getServiceData($connection);
                         
-                        //Insert disk data Snmp in Database
-                        $diskDb = new DbModels\Services\DataPhpFpm();
-                        $diskDb->setDataPhpFpm($apacheHttpdData, $paramsDevices);
+                        $phpFpmDb = new DbModels\Services\DataPhpFpm();
+                        $phpFpmDb->setDataPhpFpm($phpFpmData, $paramsDevices);
+                        break;
+                    
+                    
+                    case 'pgsql':
+                        $postgreSql = new JobDatabase\PostgreSql();
+                        $postgreSqlDb = new DbModels\Services\DataPostgreSql();
+                        
+                        $postgreSqlDataInstance = $postgreSql->getServiceDataInstance($valueServices);
+                        $instanceId = $postgreSqlDb->setDataPostgreSql($postgreSqlDataInstance, $paramsDevices);
+
+                        $postgreSqlDataDatabase = $postgreSql->getServiceDataDatabase($valueServices);
+                        $paramsDevices['seq_data_serv_pgsql'] = $instanceId;
+                        $postgreSqlDb->setDataPostgreSqlDatabase($postgreSqlDataDatabase, $paramsDevices);
                         break;
                     
                     default:

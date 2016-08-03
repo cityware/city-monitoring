@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace Cityware\Monitoring\Jobs\Snmp\Services;
+namespace Cityware\Monitoring\Jobs\Services\Snmp;
 
 /**
  * Description of Cpu
