@@ -78,6 +78,7 @@ class PostgreSql {
 
 
             $return[$key]['nam_database'] = $value['datname'];
+            $return[$key]['des_hash'] = hash('crc32b', $value['datname']);
             $return[$key]['num_datid'] = $value['datid'];
             $return[$key]['num_commit'] = $value['xact_commit'];
             $return[$key]['num_rollback'] = $value['xact_rollback'];

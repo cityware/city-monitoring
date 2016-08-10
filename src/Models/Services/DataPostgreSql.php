@@ -279,6 +279,22 @@ class DataPostgreSql extends AbstractModels {
 
         return $rsDataPgSqlDatabaseStatus;
     }
+    
+    public function getDataPostgreSqlDatabases($id) {
+        $this->getConnection();
+
+        $this->db->select("nam_database");
+        $this->db->select("des_hash");
+        $this->db->from('tab_data_serv_pgsql_database', null, 'nocomdata');
+        $this->db->where("cod_device = '{$id}'");
+        $this->db->where("des_hash IS NOT NULL");
+        $this->db->groupBy("1", true);
+        $this->db->groupBy("2", true);
+        $this->db->setDebug(false);
+        $rsDataPostgreSqlById = $this->db->executeSelectQuery();
+
+        return $rsDataPostgreSqlById;
+    }
 
     public function getDataPostgreSqlByDeviceId($id) {
         $this->getConnection();
@@ -297,13 +313,13 @@ class DataPostgreSql extends AbstractModels {
         $this->getConnection();
         $this->db->select("sum(tdspd.num_total_connections)", 'sum_total_connections', true);
         $this->db->select("tdspd.nam_database");
-        $this->db->select("tdspd.num_datid");
         $this->db->from('tab_data_serv_pgsql_database', 'tdspd', 'nocomdata');
         $this->db->join('tab_data_serv_pgsql', 'tdsp', 'tdspd.seq_data_serv_pgsql = tdsp.seq_data_serv_pgsql AND tdspd.cod_device = tdsp.cod_device', 'INNERJOIN', 'nocomdata');
         $this->db->where("tdspd.cod_device = '{$params['cod_device']}'");
-        //$this->db->where("tdsp.seq_data_serv_pgsql = '{$params['seq_data_serv_pgsql']}'");
+        $this->db->where("tdspd.dte_register >= '{$params['dte_start']}'");
+        $this->db->where("tdspd.dte_register < '{$params['dte_finish']}'");
+        $this->db->where("tdspd.num_total_connections > '0'");
         $this->db->groupBy("2", true);
-        $this->db->groupBy("3", true);
         $this->db->orderBy("1 DESC", true);
         $this->db->limit(10);
         $this->db->setDebug(false);
@@ -316,13 +332,13 @@ class DataPostgreSql extends AbstractModels {
         $this->getConnection();
         $this->db->select("max(tdspd.num_database_size)", 'max_database_size', true);
         $this->db->select("tdspd.nam_database");
-        $this->db->select("tdspd.num_datid");
         $this->db->from('tab_data_serv_pgsql_database', 'tdspd', 'nocomdata');
         $this->db->join('tab_data_serv_pgsql', 'tdsp', 'tdspd.seq_data_serv_pgsql = tdsp.seq_data_serv_pgsql AND tdspd.cod_device = tdsp.cod_device', 'INNERJOIN', 'nocomdata');
         $this->db->where("tdspd.cod_device = '{$params['cod_device']}'");
+        $this->db->where("tdspd.dte_register >= '{$params['dte_start']}'");
+        $this->db->where("tdspd.dte_register < '{$params['dte_finish']}'");
         //$this->db->where("tdsp.seq_data_serv_pgsql = '{$params['seq_data_serv_pgsql']}'");
         $this->db->groupBy("2", true);
-        $this->db->groupBy("3", true);
         $this->db->orderBy("1 DESC", true);
         $this->db->limit(10);
         $this->db->setDebug(false);
