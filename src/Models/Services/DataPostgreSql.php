@@ -318,7 +318,6 @@ class DataPostgreSql extends AbstractModels {
         $adapter = $this->monitoringAdapter();
         $results = $adapter->query($queryCheckPoints);
         
-
         $rsDataPgSqlDatabasesConnections = $this->dbResultSet->initialize($results->execute())->toArray();
         
         $this->closeConnection($adapter);
@@ -369,9 +368,30 @@ class DataPostgreSql extends AbstractModels {
         $this->db->orderBy("1 DESC", true);
         $this->db->limit(10);
         $this->db->setDebug(false);
-        $rsDataPostgreSqlTopTenDatabaseSize = $this->db->executeSelectQuery();
+        $rsDataPostgreSqlTopTenDatabaseConnections = $this->db->executeSelectQuery();
 
-        return $rsDataPostgreSqlTopTenDatabaseSize;
+        return $rsDataPostgreSqlTopTenDatabaseConnections;
+    }
+    
+    public function getDataPostgreSqlTopTenDatabaseConnectionsIp(array $params) {
+        $this->getConnection();
+        $this->db->select("MAX(tdspdi.num_total_connections)", 'max_total_connections', true);
+        $this->db->select("tdspdi.des_ip");
+        $this->db->select("tdspdi.des_asn_isp");
+        $this->db->select("tdspdi.nam_database");
+        $this->db->from('tab_data_serv_pgsql_db_ip', 'tdspdi', 'nocomdata');
+        $this->db->where("tdspdi.cod_device = '{$params['cod_device']}'");
+        $this->db->where("tdspdi.dte_register >= '{$params['dte_start']}'");
+        $this->db->where("tdspdi.dte_register < '{$params['dte_finish']}'");
+        $this->db->groupBy("2", true);
+        $this->db->groupBy("3", true);
+        $this->db->groupBy("4", true);
+        $this->db->orderBy("1 DESC", true);
+        $this->db->limit(10);
+        $this->db->setDebug(false);
+        $rsDataPostgreSqlTopTenDatabaseConnectionsIp = $this->db->executeSelectQuery();
+
+        return $rsDataPostgreSqlTopTenDatabaseConnectionsIp;
     }
 
     public function getDataPostgreSqlTopTenDatabaseSize(array $params) {
