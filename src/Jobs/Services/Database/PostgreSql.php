@@ -28,6 +28,7 @@ class PostgreSql {
         $serverVersionInstance = $dataPostgresql->getDataPgSqlInstanceVersion();
         $checkPointsInstance = $dataPostgresql->getDataPgSqlInstanceCheckpoint();
         $connectionsInstance = $dataPostgresql->getDataPgSqlInstanceConnections();
+        
         $return = Array();
 
         $return['des_server_version'] = $serverVersionInstance['server_version'];
@@ -44,7 +45,6 @@ class PostgreSql {
         $return['num_max_connections'] = (float) $connectionsInstance['max_connections'];
         $return['num_connection_ratio'] = (float) $connectionsInstance['connection_ratio'];
 
-
         $return['num_max_locks_per_transaction'] = (float) $locksInstance['max_total_locks'];
         $return['num_access_exclusive_lock'] = $locksInstance['AccessExclusiveLock'];
         $return['num_access_share_lock'] = $locksInstance['AccessShareLock'];
@@ -55,6 +55,35 @@ class PostgreSql {
         $return['num_share_row_exclusive_lock'] = $locksInstance['ShareRowExclusiveLock'];
         $return['num_share_update_exclusive_lock'] = $locksInstance['ShareUpdateExclusiveLock'];
 
+
+        return $return;
+    }
+    
+    /**
+     * Return Nginx service Data
+     * @param array $params
+     * @return array
+     */
+    public function getServiceDataDatabaseConnections(array $params) {
+
+        $dataPostgresql = new \Cityware\Monitoring\Models\Services\DataPostgreSql($params);
+
+        $connectionsDatabases = $dataPostgresql->getDataPgSqlDatabasesConnections();
+
+        $return = Array();
+        
+        $geoipV1 = new \Cityware\Utility\GeoIpV1();
+        $geoipV1->geoip_open(DATA_PATH . 'GeoIp/GeoIPASNum.dat', GEOIP_STANDARD);
+
+        foreach ($connectionsDatabases as $key => $value) {
+
+            $return[$key]['des_ip'] = $value['client_addr'];
+            $return[$key]['des_asn_isp'] = $geoipV1->geoip_name_by_addr($value['client_addr']);
+            $return[$key]['des_hash'] = hash('crc32b', $value['datname']);
+            $return[$key]['nam_database'] = $value['datname'];
+            $return[$key]['num_total_connections'] = $value['total_connections'];
+
+        }
 
         return $return;
     }

@@ -120,6 +120,30 @@ class DataPostgreSql extends AbstractModels {
             throw new \Exception('Error While Insert Data Service PostgreSQL - Databases for JOB PARALLEL - ' . $exc->getMessage());
         }
     }
+    
+    public function setDataPostgreSqlDatabaseConnections(array $params, array $paramsDevices) {
+        $this->getConnection();
+        try {
+            $this->db->transaction();
+            foreach ($params as $valueDatabase) {
+                foreach ($valueDatabase as $key => $value) {
+                    $this->db->insert($key, $value);
+                }
+
+                $this->db->insert("cod_device", $paramsDevices['cod_device']);
+                $this->db->insert("seq_data_serv_pgsql", $paramsDevices['seq_data_serv_pgsql']);
+                $this->db->insert("dte_register", date('Y-m-d H:i:s'));
+                $this->db->from('tab_data_serv_pgsql_db_ip', null, 'nocomdata');
+                $this->db->setdebug(false);
+                $this->db->executeInsertQuery();
+            }
+
+            $this->db->commit();
+        } catch (\Exception $exc) {
+            $this->db->rollback();
+            throw new \Exception('Error While Insert Data Service PostgreSQL - Databases for JOB PARALLEL - ' . $exc->getMessage());
+        }
+    }
 
     private function monitoringAdapter() {
         $this->dbConnectionNewAdapter = new ZendDbAdapter(Array(
@@ -278,6 +302,28 @@ class DataPostgreSql extends AbstractModels {
         $this->closeConnection($adapter);
 
         return $rsDataPgSqlDatabaseStatus;
+    }
+    
+    public function getDataPgSqlDatabasesConnections() {
+        
+        $queryCheckPoints = "
+        SELECT count(*) AS total_connections, 
+            client_addr,
+            datname
+        FROM get_pg_stats()
+        WHERE datname !~ 'postgres|template' AND client_addr NOT IN('::1','127.0.0.1')
+        GROUP BY 2, 3
+        ";
+
+        $adapter = $this->monitoringAdapter();
+        $results = $adapter->query($queryCheckPoints);
+        
+
+        $rsDataPgSqlDatabasesConnections = $this->dbResultSet->initialize($results->execute())->toArray();
+        
+        $this->closeConnection($adapter);
+
+        return $rsDataPgSqlDatabasesConnections;
     }
     
     public function getDataPostgreSqlDatabases($id) {

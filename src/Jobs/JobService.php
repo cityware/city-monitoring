@@ -61,10 +61,14 @@ class JobService {
                         
                         $postgreSqlDataInstance = $postgreSql->getServiceDataInstance($valueServices);
                         $instanceId = $postgreSqlDb->setDataPostgreSql($postgreSqlDataInstance, $paramsDevices);
+                        
+                        $paramsDevices['seq_data_serv_pgsql'] = $instanceId;
 
                         $postgreSqlDataDatabase = $postgreSql->getServiceDataDatabase($valueServices);
-                        $paramsDevices['seq_data_serv_pgsql'] = $instanceId;
                         $postgreSqlDb->setDataPostgreSqlDatabase($postgreSqlDataDatabase, $paramsDevices);
+                        
+                        $postgreSqlDataDatabaseConnections = $postgreSql->getServiceDataDatabaseConnections($valueServices);
+                        $postgreSqlDb->setDataPostgreSqlDatabaseConnections($postgreSqlDataDatabaseConnections, $paramsDevices);
                         break;
                     
                     default:
