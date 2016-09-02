@@ -28,7 +28,7 @@ class JobService {
         $connection = $connectionJobs->getConnection($paramsDevices, $paramsDevices['ind_snmp_wmi']);
         
         if ($paramsDevices['ind_snmp_wmi'] == 'S') {
-            foreach ($modelServices->getDeviceServices($paramsDevices['cod_device_type'], $paramsDevices['cod_device']) as $valueServices) {
+            foreach ($modelServices->getDeviceServices($paramsDevices['cod_device']) as $valueServices) {
                 switch ($valueServices['des_sign']) {
                     case 'aphttp':
                         $apacheHttpd = new JobSnmp\ApacheHttpd();
@@ -61,10 +61,14 @@ class JobService {
                         
                         $postgreSqlDataInstance = $postgreSql->getServiceDataInstance($valueServices);
                         $instanceId = $postgreSqlDb->setDataPostgreSql($postgreSqlDataInstance, $paramsDevices);
+                        
+                        $paramsDevices['seq_data_serv_pgsql'] = $instanceId;
 
                         $postgreSqlDataDatabase = $postgreSql->getServiceDataDatabase($valueServices);
-                        $paramsDevices['seq_data_serv_pgsql'] = $instanceId;
                         $postgreSqlDb->setDataPostgreSqlDatabase($postgreSqlDataDatabase, $paramsDevices);
+                        
+                        $postgreSqlDataDatabaseConnections = $postgreSql->getServiceDataDatabaseConnections($valueServices);
+                        $postgreSqlDb->setDataPostgreSqlDatabaseConnections($postgreSqlDataDatabaseConnections, $paramsDevices);
                         break;
                     
                     default:
