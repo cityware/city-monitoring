@@ -58,7 +58,7 @@ class PostgreSql {
 
         return $return;
     }
-
+    
     /**
      * Return Nginx service Data
      * @param array $params
@@ -71,7 +71,7 @@ class PostgreSql {
         $connectionsDatabases = $dataPostgresql->getDataPgSqlDatabasesConnections();
 
         $return = Array();
-
+        
         $geoipV1 = new \Cityware\Utility\GeoIpV1();
         $geoipV1->geoip_open(DATA_PATH . 'GeoIp/GeoIPASNum.dat', GEOIP_STANDARD);
 
