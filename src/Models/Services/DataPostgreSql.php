@@ -120,9 +120,10 @@ class DataPostgreSql extends AbstractModels {
             throw new \Exception('Error While Insert Data Service PostgreSQL - Databases for JOB PARALLEL - ' . $exc->getMessage());
         }
     }
-    
+
     public function setDataPostgreSqlDatabaseConnections(array $params, array $paramsDevices) {
         $this->getConnection();
+
         try {
             $this->db->transaction();
             foreach ($params as $valueDatabase) {
@@ -211,7 +212,7 @@ class DataPostgreSql extends AbstractModels {
 
         $adapter = $this->monitoringAdapter();
         $results = $adapter->query($queryCheckPoints);
-        
+
 
         $rsDataPgSqlInstanceCheckpoint = $this->dbResultSet->initialize($results->execute())->toArray();
         $this->closeConnection($adapter);
@@ -303,28 +304,35 @@ class DataPostgreSql extends AbstractModels {
 
         return $rsDataPgSqlDatabaseStatus;
     }
-    
+
     public function getDataPgSqlDatabasesConnections() {
-        
-        $queryCheckPoints = "
+
+        $adapter = $this->monitoringAdapter();
+
+        $params = $adapter->getDriver()->getConnection()->getConnectionParameters();
+
+        try {
+            $queryCheckPoints = "
         SELECT count(*) AS total_connections, 
             client_addr,
             datname
-        FROM get_pg_stats()
+            FROM pg_stat_activity
         WHERE datname !~ 'postgres|template' AND client_addr NOT IN('::1','127.0.0.1')
         GROUP BY 2, 3
         ";
 
-        $adapter = $this->monitoringAdapter();
-        $results = $adapter->query($queryCheckPoints);
-        
-        $rsDataPgSqlDatabasesConnections = $this->dbResultSet->initialize($results->execute())->toArray();
-        
-        $this->closeConnection($adapter);
+            $results = $adapter->query($queryCheckPoints);
 
-        return $rsDataPgSqlDatabasesConnections;
+            $rsDataPgSqlDatabasesConnections = $this->dbResultSet->initialize($results->execute())->toArray();
+
+            $this->closeConnection($adapter);
+            return $rsDataPgSqlDatabasesConnections;
+        } catch (Exception $exc) {
+            $this->closeConnection($adapter);
+            throw new \Exception('Erro ao executar query da função "getDataPgSqlDatabasesConnections" e base "'.$params['database'].'" com o erro:' . $exc->getMessage());
+        }
     }
-    
+
     public function getDataPostgreSqlDatabases($id) {
         $this->getConnection();
 
@@ -372,7 +380,7 @@ class DataPostgreSql extends AbstractModels {
 
         return $rsDataPostgreSqlTopTenDatabaseConnections;
     }
-    
+
     public function getDataPostgreSqlTopTenDatabaseConnectionsIp(array $params) {
         $this->getConnection();
         $this->db->select("MAX(tdspdi.num_total_connections)", 'max_total_connections', true);
@@ -412,7 +420,7 @@ class DataPostgreSql extends AbstractModels {
 
         return $rsDataPostgreSqlTopTenDatabaseSize;
     }
-    
+
     public function getDataPostgreSqlCommitRollbackInstance(array $params) {
         $this->getConnection();
         $this->db->select("tdspd.dte_register");
@@ -451,7 +459,7 @@ class DataPostgreSql extends AbstractModels {
             ORDER BY tdsp.dte_register DESC
             LIMIT 60";
 
-        
+
         $this->db->setDebug(false);
         $rsDataPostgreSqlCheckPointsLastHour = $this->db->executeSqlQuery($queryCheckPoints);
 
@@ -494,10 +502,10 @@ class DataPostgreSql extends AbstractModels {
 
         $this->db->select("trunc(EXTRACT(MINUTE from dte_register) / 5)", 'slot', true);
         $this->db->select("sum(tdsp.num_total_checkpoints)", 'num_total_checkpoints', true);
-        
+
         $this->db->select("sum(tdsp.num_total_checkpoints_req)", 'num_total_checkpoints_req', true);
         $this->db->select("sum(tdsp.num_total_checkpoints_timed)", 'num_total_checkpoints_timed', true);
-        
+
         $this->db->select("avg(tdsp.num_sec_between_checkpoints)", 'num_sec_between_checkpoints', true);
         $this->db->select("avg(tdsp.num_checkpoint_req_timed_ratio)", 'num_checkpoint_req_timed_ratio', true);
         $this->db->select("sum(tdsp.num_total_connections)", 'num_total_connections', true);
@@ -538,10 +546,10 @@ class DataPostgreSql extends AbstractModels {
 
         $this->db->select("trunc(EXTRACT(HOUR from dte_register) / 1)", 'slot', true);
         $this->db->select("sum(tdsp.num_total_checkpoints)", 'num_total_checkpoints', true);
-        
+
         $this->db->select("sum(tdsp.num_total_checkpoints_req)", 'num_total_checkpoints_req', true);
         $this->db->select("sum(tdsp.num_total_checkpoints_timed)", 'num_total_checkpoints_timed', true);
-        
+
         $this->db->select("avg(tdsp.num_sec_between_checkpoints)", 'num_sec_between_checkpoints', true);
         $this->db->select("avg(tdsp.num_checkpoint_req_timed_ratio)", 'num_checkpoint_req_timed_ratio', true);
         $this->db->select("sum(tdsp.num_total_connections)", 'num_total_connections', true);
@@ -582,10 +590,10 @@ class DataPostgreSql extends AbstractModels {
 
         $this->db->select("trunc(EXTRACT(DAY from dte_register) / 1)", 'slot', true);
         $this->db->select("sum(tdsp.num_total_checkpoints)", 'num_total_checkpoints', true);
-        
+
         $this->db->select("sum(tdsp.num_total_checkpoints_req)", 'num_total_checkpoints_req', true);
         $this->db->select("sum(tdsp.num_total_checkpoints_timed)", 'num_total_checkpoints_timed', true);
-        
+
         $this->db->select("avg(tdsp.num_sec_between_checkpoints)", 'num_sec_between_checkpoints', true);
         $this->db->select("avg(tdsp.num_checkpoint_req_timed_ratio)", 'num_checkpoint_req_timed_ratio', true);
         $this->db->select("sum(tdsp.num_total_connections)", 'num_total_connections', true);
@@ -626,10 +634,10 @@ class DataPostgreSql extends AbstractModels {
 
         $this->db->select("trunc(EXTRACT(MONTH from dte_register) / 1)", 'slot', true);
         $this->db->select("sum(tdsp.num_total_checkpoints)", 'num_total_checkpoints', true);
-        
+
         $this->db->select("sum(tdsp.num_total_checkpoints_req)", 'num_total_checkpoints_req', true);
         $this->db->select("sum(tdsp.num_total_checkpoints_timed)", 'num_total_checkpoints_timed', true);
-        
+
         $this->db->select("avg(tdsp.num_sec_between_checkpoints)", 'num_sec_between_checkpoints', true);
         $this->db->select("avg(tdsp.num_checkpoint_req_timed_ratio)", 'num_checkpoint_req_timed_ratio', true);
         $this->db->select("sum(tdsp.num_total_connections)", 'num_total_connections', true);
