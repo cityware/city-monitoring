@@ -329,7 +329,7 @@ class DataPostgreSql extends AbstractModels {
             return $rsDataPgSqlDatabasesConnections;
         } catch (Exception $exc) {
             $this->closeConnection($adapter);
-            throw new \Exception('Erro ao executar query da função "getDataPgSqlDatabasesConnections" e base "'.$params['database'].'" com o erro:' . $exc->getMessage());
+            throw new \Exception('Erro ao executar query da função "getDataPgSqlDatabasesConnections" e base "' . $params['database'] . '" com o erro:' . $exc->getMessage());
         }
     }
 
