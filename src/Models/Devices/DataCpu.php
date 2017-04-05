@@ -7,6 +7,7 @@
  */
 
 namespace Cityware\Monitoring\Models\Devices;
+
 use Cityware\Monitoring\Models\AbstractModels;
 
 /**
@@ -15,8 +16,8 @@ use Cityware\Monitoring\Models\AbstractModels;
  * @author fsvxavier
  */
 class DataCpu extends AbstractModels {
-
-    public function setDataCpu(array $params, array $paramsDevices) {
+    
+    public function setDataCpuDb(array $params, array $paramsDevices) {
         $this->getConnection();
         try {
             $this->db->transaction();
@@ -40,6 +41,37 @@ class DataCpu extends AbstractModels {
         }
     }
 
+    public function setDataCpu(array $params, array $paramsDevices) {
+        $this->getConnection();
+        try {
+            
+            $this->db->sequence('gen_data_cpu', 'nocomdata');
+            $id = $this->db->executeSequence();
+
+            $paramsCpuInsert = [
+                'index' => 'nocom',
+                'type' => 'tab_data_cpu',
+                'id' => $id['0']['nextval'],
+                'body' => [
+                    "cod_device" => $paramsDevices['cod_device'],
+                    "num_load_one_min" => $params['oneMinute'],
+                    "num_load_five_min" => $params['fiveMinute'],
+                    "num_load_fifteen_min" => $params['fifteenMinute'],
+                    "num_load_percentage" => $params['loadPercentage'],
+                    "num_threshoud_cpu_slots" => $paramsDevices['num_slot_processors'],
+                    "num_threshoud_cpu_cores" => $paramsDevices['num_core_processors'],
+                    "num_threshoud_cpu_ht" => $paramsDevices['ind_hyper_threading'],
+                    "dte_register" => date('Y-m-d H:i:s'),
+                ],
+            ];
+
+            $ret = $this->es->index($paramsCpuInsert);
+
+        } catch (Exception $exc) {
+            throw new Exception('Error While Insert Data CPU for JOB PARALLEL - ' . $exc->getMessage());
+        }
+    }
+
     public function getDataCpuLoadCurrentHour(array $params) {
         $this->getConnection();
 
@@ -56,7 +88,7 @@ class DataCpu extends AbstractModels {
         $this->db->orderBy("1", true);
         $this->db->setDebug(false);
         $rsDataCpuLoadLastHour = $this->db->executeSelectQuery();
-        
+
         $return = Array();
 
         foreach ($rsDataCpuLoadLastHour as $value) {
@@ -134,7 +166,7 @@ class DataCpu extends AbstractModels {
         $this->db->orderBy("1", true);
         $this->db->setDebug(false);
         $rsDataCpuLoadLastYear = $this->db->executeSelectQuery();
-        
+
         $return = Array();
 
         foreach ($rsDataCpuLoadLastYear as $value) {
