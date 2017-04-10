@@ -7,6 +7,7 @@
  */
 
 namespace Cityware\Monitoring\Models\Devices;
+
 use Cityware\Monitoring\Models\AbstractModels;
 
 /**
@@ -17,6 +18,37 @@ use Cityware\Monitoring\Models\AbstractModels;
 class DataMemory extends AbstractModels {
 
     public function setDataMemory(array $params, array $paramsDevices) {
+        $this->getConnection();
+        try {
+            $this->db->sequence('gen_data_memory', 'nocomdata');
+            $id = $this->db->executeSequence();
+
+            $paramsMemoryInsert = [
+                'index' => 'nocom',
+                'type' => 'tab_data_memory',
+                'id' => $id['0']['nextval'],
+                'body' => [
+                    "cod_device" => $paramsDevices['cod_device'],
+                    "num_perc_ram_used" => $params['perc_memory_used'],
+                    "num_perc_swap_used" => $params['perc_swap_used'],
+                    "num_total_ram_used" => $params['total_memory_used'],
+                    "num_total_swap_used" => $params['total_swap_used'],
+                    "num_total_ram_avaliable" => $params['avaliable_ram_real'],
+                    "num_total_swap_avaliable" => $params['avaliable_swap_size'],
+                    "num_total_ram" => $params['total_ram_machine'],
+                    "num_total_swap" => $params['total_swap_size'],
+                    "dte_register" => date('Y-m-d H:i:s'),
+                ],
+            ];
+
+            $ret = $this->es->index($paramsMemoryInsert);
+        } catch (Exception $exc) {
+            $this->db->rollback();
+            throw new Exception('Error While Insert Data Memory for JOB PARALLEL - ' . $exc->getMessage());
+        }
+    }
+
+    public function setDataMemoryDb(array $params, array $paramsDevices) {
         $this->getConnection();
         try {
             $this->db->transaction();

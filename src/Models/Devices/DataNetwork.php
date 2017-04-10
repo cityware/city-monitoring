@@ -7,6 +7,7 @@
  */
 
 namespace Cityware\Monitoring\Models\Devices;
+
 use Cityware\Monitoring\Models\AbstractModels;
 
 /**
@@ -17,6 +18,76 @@ use Cityware\Monitoring\Models\AbstractModels;
 class DataNetwork extends AbstractModels {
 
     public function setDataNetwork(array $params, array $paramsDevices) {
+
+
+        $this->getConnection();
+        try {
+            if (isset($params['index'])) {
+
+                $paramsLastData = Array();
+
+                foreach ($params['index'] as $index) {
+                    if (isset($params['phys_address'][$index]) and ! empty($params['phys_address'][$index])) {
+                        $paramsLastData[$paramsDevices['cod_device']][$params['phys_address'][$index]] = $this->getLastDataNetworkByDevice($paramsDevices['cod_device'], $params['phys_address'][$index]);
+                    }
+                }
+
+                $this->db->transaction();
+                $dateTimeNow = date('Y-m-d H:i:s');
+                foreach ($params['index'] as $index) {
+
+                    $paramsBand = Array(
+                        'cod_device' => $paramsDevices['cod_device'],
+                        'num_in_octets' => $params['in_octets'][$index],
+                        'num_out_octets' => $params['out_octets'][$index],
+                        'dte_register' => $dateTimeNow,
+                        'num_speed' => $params['speed'][$index],
+                        'num_high_speed' => $params['high_speed'][$index],
+                    );
+
+                    if (isset($params['phys_address'][$index]) and ! empty($params['phys_address'][$index])) {
+                        $bandwidth = $this->bandwidthCalculation($paramsBand, $paramsLastData[$paramsDevices['cod_device']][$params['phys_address'][$index]]);
+                    } else {
+                        $bandwidth = $this->bandwidthCalculation($paramsBand);
+                    }
+
+                    $this->db->sequence('gen_data_interface', 'nocomdata');
+                    $id = $this->db->executeSequence();
+
+                    $paramsNetworkInsert = [
+                        'index' => 'nocom',
+                        'type' => 'tab_data_interface',
+                        'id' => $id['0']['nextval'],
+                        'body' => [
+                            "cod_device" => $paramsDevices['cod_device'],
+                            "nam_interface" => $params['name'][$index],
+                            "des_type_interface" => $params['type_desc'][$index],
+                            "des_phys_address" => $params['phys_address'][$index],
+                            "des_ip_address" => $params['ip_address'][$index],
+                            "ind_oper_status" => (($params['oper_status'][$index]) ? "U" : "D"),
+                            "ind_admin_status" => (($params['admin_status'][$index]) ? "U" : "D"),
+                            "num_in_octets" => $params['in_octets'][$index],
+                            "num_in_unicast_packets" => $params['in_unicast_packets'][$index],
+                            "num_out_octets" => $params['out_octets'][$index],
+                            "num_out_unicast_packets" => $params['out_unicast_packets'][$index],
+                            "num_speed" => $params['speed'][$index],
+                            "num_high_speed" => $params['high_speed'][$index],
+                            "num_in_bit_rate" => $bandwidth['in_bit_rate'],
+                            "num_out_bit_rate" => $bandwidth['out_bit_rate'],
+                            "dte_register" => $dateTimeNow,
+                        ],
+                    ];
+
+                    $ret = $this->es->index($paramsNetworkInsert);
+                }
+            }
+        } catch (Exception $exc) {
+            $this->db->rollback();
+            throw new Exception('Error While Insert Data Network Interface for JOB PARALLEL - ' . $exc->getMessage());
+        }
+    }
+
+    public function setDataNetworkDb(array $params, array $paramsDevices) {
 
 
         $this->getConnection();

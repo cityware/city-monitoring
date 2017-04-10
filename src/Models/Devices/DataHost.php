@@ -7,6 +7,7 @@
  */
 
 namespace Cityware\Monitoring\Models\Devices;
+
 use Cityware\Monitoring\Models\AbstractModels;
 
 /**
@@ -17,6 +18,33 @@ use Cityware\Monitoring\Models\AbstractModels;
 class DataHost extends AbstractModels {
 
     public function setDataHost(array $params, array $paramsDevices) {
+
+        $this->getConnection();
+        try {
+            $this->db->sequence('gen_data_host', 'nocomdata');
+            $id = $this->db->executeSequence();
+
+            $paramsHostInsert = [
+                'index' => 'nocom',
+                'type' => 'tab_data_host',
+                'id' => $id['0']['nextval'],
+                'body' => [
+                    "cod_device" => $paramsDevices['cod_device'],
+                    "num_uptime" => $params['uptime'],
+                    "num_users_connected" => $params['users_connected'],
+                    "num_running_process" => $params['running_process'],
+                    "dte_register" => date('Y-m-d H:i:s'),
+                ],
+            ];
+
+            $ret = $this->es->index($paramsHostInsert);
+        } catch (Exception $exc) {
+            $this->db->rollback();
+            throw new Exception('Error While Insert Data Host for JOB PARALLEL - ' . $exc->getMessage());
+        }
+    }
+
+    public function setDataHostDb(array $params, array $paramsDevices) {
 
         $this->getConnection();
         try {
