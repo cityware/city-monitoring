@@ -27,10 +27,17 @@ class AbstractModels {
     }
 
     private function getConnectionEs() {
-        $hosts = [
-            '172.16.20.10:9200',
-            '172.16.20.11:9200',
-        ];
+        $config = \Zend\Config\Factory::fromFile(GLOBAL_CONFIG_PATH . 'global.php');
+
+        $hosts = [];
+
+        if (isset($config['elastic']['servers']) and ! empty($config['elastic']['servers'])) {
+            foreach ($config['elastic']['servers'] as $valueServers) {
+                $hosts[] = $valueServers['host'] . ':' . $valueServers['port'];
+            }
+        } else {
+            throw new Exception('Não foi encontrada as configurações do ElasticSearch!');
+        }
 
         $clientBuilder = ClientBuilder::create();   // Instantiate a new ClientBuilder
         $clientBuilder->setHosts($hosts);           // Set the hosts
