@@ -54,6 +54,20 @@ class DataNetwork extends AbstractModels {
                     $this->db->sequence('gen_data_interface', 'nocomdata');
                     $id = $this->db->executeSequence();
 
+                    $ips = json_decode($params['ip_address'][$index]);
+
+                    $ip = null;
+                    $proxy = null;
+
+                    if (!empty($ips) and count($ips) > 0) {
+                        if (count($ips) > 1) {
+                            $ip = $ips[0];
+                            $proxy = $ips[1];
+                        } else {
+                            $ip = $ips[0];
+                        }
+                    }
+
                     $paramsNetworkInsert = [
                         'index' => 'nocom',
                         'type' => 'tab_data_interface',
@@ -62,8 +76,8 @@ class DataNetwork extends AbstractModels {
                             "cod_device" => $paramsDevices['cod_device'],
                             "nam_interface" => $params['name'][$index],
                             "des_type_interface" => $params['type_desc'][$index],
-                            "des_phys_address" => $params['phys_address'][$index],
-                            "des_ip_address" => $params['ip_address'][$index],
+                            "des_ip_address" => $ip,
+                            "des_ip_proxy" => $proxy,
                             "ind_oper_status" => (($params['oper_status'][$index]) ? "U" : "D"),
                             "ind_admin_status" => (($params['admin_status'][$index]) ? "U" : "D"),
                             "num_in_octets" => $params['in_octets'][$index],
