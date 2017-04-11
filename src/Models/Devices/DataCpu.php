@@ -16,7 +16,7 @@ use Cityware\Monitoring\Models\AbstractModels;
  * @author fsvxavier
  */
 class DataCpu extends AbstractModels {
-    
+
     public function setDataCpuDb(array $params, array $paramsDevices) {
         $this->getConnection();
         try {
@@ -44,7 +44,7 @@ class DataCpu extends AbstractModels {
     public function setDataCpu(array $params, array $paramsDevices) {
         $this->getConnection();
         try {
-            
+
             $this->db->sequence('gen_data_cpu', 'nocomdata');
             $id = $this->db->executeSequence();
 
@@ -66,7 +66,6 @@ class DataCpu extends AbstractModels {
             ];
 
             $ret = $this->es->index($paramsCpuInsert);
-
         } catch (Exception $exc) {
             throw new Exception('Error While Insert Data CPU for JOB PARALLEL - ' . $exc->getMessage());
         }
@@ -123,7 +122,7 @@ class DataCpu extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" =>["order" => "desc"]]],
+                "sort" => [["dte_register" => ["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -156,11 +155,11 @@ class DataCpu extends AbstractModels {
                 ],
             ],
         ];
-        
+
         $resultEs = $this->es->search($paramsEs);
-        
+
         $return = [];
-        
+
         foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
             $return[$key]['slot'] = $key;
             $return[$key]['key'] = $value['key_as_string'];
@@ -173,7 +172,7 @@ class DataCpu extends AbstractModels {
         return $return;
     }
 
-    public function getDataCpuLoadCurrentDay(array $params) {
+    public function getDataCpuLoadCurrentDayDb(array $params) {
         $this->getConnection();
 
         $this->db->select("trunc(EXTRACT(HOUR from dte_register) / 1)", 'slot', true);
@@ -199,7 +198,82 @@ class DataCpu extends AbstractModels {
         return $return;
     }
 
-    public function getDataCpuLoadCurrentMonth(array $params) {
+    public function getDataCpuLoadCurrentDay(array $params) {
+        $this->getConnection();
+
+        $paramsEs = [
+            'index' => 'nocom',
+            'type' => 'tab_data_cpu',
+            'size' => '0',
+            'body' => [
+                'query' => [
+                    "bool" => [
+                        'must' => [
+                            'term' => [
+                                'cod_device' => $params['cod_device'],
+                            ],
+                        ],
+                        'filter' => [
+                            "range" => [
+                                "dte_register" => [
+                                    "gte" => $params['dte_start'],
+                                    "lte" => $params['dte_finish'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                "sort" => [["dte_register" => ["order" => "desc"]]],
+                "aggs" => [
+                    "peer5Minutes" => [
+                        "date_histogram" => [
+                            "field" => "dte_register",
+                            "interval" => "1h"
+                        ],
+                        "aggs" => [
+                            "num_load_one_min_avg" => [
+                                "sum" => [
+                                    "field" => "num_load_one_min"
+                                ],
+                            ],
+                            "num_load_five_min_avg" => [
+                                "avg" => [
+                                    "field" => "num_load_five_min"
+                                ],
+                            ],
+                            "num_load_fifteen_min_avg" => [
+                                "avg" => [
+                                    "field" => "num_load_fifteen_min"
+                                ],
+                            ],
+                            "num_load_percentage_avg" => [
+                                "avg" => [
+                                    "field" => "num_load_percentage"
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $resultEs = $this->es->search($paramsEs);
+
+        $return = [];
+
+        foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
+            $return[$key]['slot'] = $key;
+            $return[$key]['key'] = $value['key_as_string'];
+            $return[$key]['num_load_one_min'] = $value['num_load_one_min_avg']['value'];
+            $return[$key]['num_load_five_min'] = $value['num_load_five_min_avg']['value'];
+            $return[$key]['num_load_fifteen_min'] = $value['num_load_fifteen_min_avg']['value'];
+            $return[$key]['num_load_percentage'] = $value['num_load_percentage_avg']['value'];
+        }
+
+        return $return;
+    }
+
+    public function getDataCpuLoadCurrentMonthDb(array $params) {
         $this->getConnection();
 
         $this->db->select("trunc(EXTRACT(DAY from dte_register) / 1)", 'slot', true);
@@ -225,7 +299,82 @@ class DataCpu extends AbstractModels {
         return $return;
     }
 
-    public function getDataCpuLoadCurrentYear(array $params) {
+    public function getDataCpuLoadCurrentMonth(array $params) {
+        $this->getConnection();
+
+        $paramsEs = [
+            'index' => 'nocom',
+            'type' => 'tab_data_cpu',
+            'size' => '0',
+            'body' => [
+                'query' => [
+                    "bool" => [
+                        'must' => [
+                            'term' => [
+                                'cod_device' => $params['cod_device'],
+                            ],
+                        ],
+                        'filter' => [
+                            "range" => [
+                                "dte_register" => [
+                                    "gte" => $params['dte_start'],
+                                    "lte" => $params['dte_finish'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                "sort" => [["dte_register" => ["order" => "desc"]]],
+                "aggs" => [
+                    "peer5Minutes" => [
+                        "date_histogram" => [
+                            "field" => "dte_register",
+                            "interval" => "1d"
+                        ],
+                        "aggs" => [
+                            "num_load_one_min_avg" => [
+                                "sum" => [
+                                    "field" => "num_load_one_min"
+                                ],
+                            ],
+                            "num_load_five_min_avg" => [
+                                "avg" => [
+                                    "field" => "num_load_five_min"
+                                ],
+                            ],
+                            "num_load_fifteen_min_avg" => [
+                                "avg" => [
+                                    "field" => "num_load_fifteen_min"
+                                ],
+                            ],
+                            "num_load_percentage_avg" => [
+                                "avg" => [
+                                    "field" => "num_load_percentage"
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $resultEs = $this->es->search($paramsEs);
+
+        $return = [];
+
+        foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
+            $return[$key]['slot'] = $key;
+            $return[$key]['key'] = $value['key_as_string'];
+            $return[$key]['num_load_one_min'] = $value['num_load_one_min_avg']['value'];
+            $return[$key]['num_load_five_min'] = $value['num_load_five_min_avg']['value'];
+            $return[$key]['num_load_fifteen_min'] = $value['num_load_fifteen_min_avg']['value'];
+            $return[$key]['num_load_percentage'] = $value['num_load_percentage_avg']['value'];
+        }
+
+        return $return;
+    }
+
+    public function getDataCpuLoadCurrentYearDb(array $params) {
         $this->getConnection();
 
         $this->db->select("trunc(EXTRACT(MONTH from dte_register) / 1)", 'slot', true);
@@ -246,6 +395,81 @@ class DataCpu extends AbstractModels {
 
         foreach ($rsDataCpuLoadLastYear as $value) {
             $return[$value['slot']] = $value;
+        }
+
+        return $return;
+    }
+
+    public function getDataCpuLoadCurrentYear(array $params) {
+        $this->getConnection();
+
+        $paramsEs = [
+            'index' => 'nocom',
+            'type' => 'tab_data_cpu',
+            'size' => '0',
+            'body' => [
+                'query' => [
+                    "bool" => [
+                        'must' => [
+                            'term' => [
+                                'cod_device' => $params['cod_device'],
+                            ],
+                        ],
+                        'filter' => [
+                            "range" => [
+                                "dte_register" => [
+                                    "gte" => $params['dte_start'],
+                                    "lte" => $params['dte_finish'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                "sort" => [["dte_register" => ["order" => "desc"]]],
+                "aggs" => [
+                    "peer5Minutes" => [
+                        "date_histogram" => [
+                            "field" => "dte_register",
+                            "interval" => "1M"
+                        ],
+                        "aggs" => [
+                            "num_load_one_min_avg" => [
+                                "sum" => [
+                                    "field" => "num_load_one_min"
+                                ],
+                            ],
+                            "num_load_five_min_avg" => [
+                                "avg" => [
+                                    "field" => "num_load_five_min"
+                                ],
+                            ],
+                            "num_load_fifteen_min_avg" => [
+                                "avg" => [
+                                    "field" => "num_load_fifteen_min"
+                                ],
+                            ],
+                            "num_load_percentage_avg" => [
+                                "avg" => [
+                                    "field" => "num_load_percentage"
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $resultEs = $this->es->search($paramsEs);
+
+        $return = [];
+
+        foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
+            $return[$key]['slot'] = $key;
+            $return[$key]['key'] = $value['key_as_string'];
+            $return[$key]['num_load_one_min'] = $value['num_load_one_min_avg']['value'];
+            $return[$key]['num_load_five_min'] = $value['num_load_five_min_avg']['value'];
+            $return[$key]['num_load_fifteen_min'] = $value['num_load_fifteen_min_avg']['value'];
+            $return[$key]['num_load_percentage'] = $value['num_load_percentage_avg']['value'];
         }
 
         return $return;
