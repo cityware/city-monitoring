@@ -66,6 +66,7 @@ class DataCpu extends AbstractModels {
             ];
 
             $ret = $this->es->index($paramsCpuInsert);
+
         } catch (Exception $exc) {
             throw new Exception('Error While Insert Data CPU for JOB PARALLEL - ' . $exc->getMessage());
         }
@@ -122,7 +123,7 @@ class DataCpu extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" => ["order" => "desc"]]],
+                "sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -223,12 +224,12 @@ class DataCpu extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" => ["order" => "desc"]]],
+                "sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
                             "field" => "dte_register",
-                            "interval" => "1h"
+                            "interval" => "hour"
                         ],
                         "aggs" => [
                             "num_load_one_min_avg" => [
@@ -324,12 +325,12 @@ class DataCpu extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" => ["order" => "desc"]]],
+                "sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
                             "field" => "dte_register",
-                            "interval" => "1d"
+                            "interval" => "day"
                         ],
                         "aggs" => [
                             "num_load_one_min_avg" => [
@@ -425,12 +426,12 @@ class DataCpu extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" => ["order" => "desc"]]],
+                "sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
                             "field" => "dte_register",
-                            "interval" => "1M"
+                            "interval" => "month"
                         ],
                         "aggs" => [
                             "num_load_one_min_avg" => [

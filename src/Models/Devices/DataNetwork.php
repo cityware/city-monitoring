@@ -11,7 +11,7 @@ namespace Cityware\Monitoring\Models\Devices;
 use Cityware\Monitoring\Models\AbstractModels;
 
 /**
- * Description of DataMemory
+ * Description of DataNetwork
  *
  * @author fsvxavier
  */
@@ -264,7 +264,7 @@ class DataNetwork extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" => ["order" => "desc"]]],
+                "sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -352,12 +352,12 @@ class DataNetwork extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" => ["order" => "desc"]]],
+                "sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
                             "field" => "dte_register",
-                            "interval" => "1h"
+                            "interval" => "hour"
                         ],
                         "aggs" => [
                             "num_out_bit_rate_avg" => [
@@ -440,12 +440,12 @@ class DataNetwork extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" => ["order" => "desc"]]],
+                "sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
                             "field" => "dte_register",
-                            "interval" => "1d"
+                            "interval" => "day"
                         ],
                         "aggs" => [
                             "num_out_bit_rate_avg" => [
@@ -528,12 +528,12 @@ class DataNetwork extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" => ["order" => "desc"]]],
+                "sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
                             "field" => "dte_register",
-                            "interval" => "1M"
+                            "interval" => "month"
                         ],
                         "aggs" => [
                             "num_out_bit_rate_avg" => [
