@@ -214,7 +214,7 @@ class DataNetwork extends AbstractModels {
         }
     }
 
-    public function getDataNetworkCurrentHour(array $params) {
+    public function getDataNetworkCurrentHourDb(array $params) {
         $this->getConnection();
 
         $this->db->select("trunc(EXTRACT(MINUTE from tdi.dte_register) / 5)", 'slot', true);
@@ -234,6 +234,69 @@ class DataNetwork extends AbstractModels {
 
         foreach ($rsDataNetworkLastHour as $value) {
             $return[$value['slot']] = $value;
+        }
+
+        return $return;
+    }
+
+    public function getDataNetworkCurrentHour(array $params) {
+        $this->getConnection();
+
+        $paramsEs = [
+            'index' => 'nocom',
+            'type' => 'tab_data_interface',
+            'size' => '0',
+            'body' => [
+                'query' => [
+                    "bool" => [
+                        'must' => [
+                            'term' => [
+                                'cod_device' => $params['cod_device'],
+                            ],
+                        ],
+                        'filter' => [
+                            "range" => [
+                                "dte_register" => [
+                                    "gte" => $params['dte_start'],
+                                    "lte" => $params['dte_finish'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                "sort" => [["dte_register" =>["order" => "desc"]]],
+                "aggs" => [
+                    "peer5Minuts" => [
+                        "date_histogram" => [
+                            "field" => "dte_register",
+                            "interval" => "5m"
+                        ],
+                        "aggs" => [
+                            "num_out_bit_rate_avg" => [
+                                "sum" => [
+                                    "field" => "num_out_bit_rate"
+                                ],
+                            ],
+                            "num_in_bit_rate_avg" => [
+                                "avg" => [
+                                    "field" => "num_in_bit_rate"
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        
+        $resultEs = $this->es->search($paramsEs);
+        
+        $return = [];
+        
+        foreach ($resultEs['aggregations']['peer5Minuts']['buckets'] as $key => $value) {
+            $return[$key]['slot'] = $key;
+            $return[$key]['key'] = $value['key_as_string'];
+            $return[$key]['num_in_bit_rate'] = $value['num_in_bit_rate_avg']['value'];
+            $return[$key]['num_out_bit_rate'] = $value['num_out_bit_rate_avg']['value'];
         }
 
         return $return;
