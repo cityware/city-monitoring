@@ -19,7 +19,6 @@ class DataNetwork extends AbstractModels {
 
     public function setDataNetwork(array $params, array $paramsDevices) {
 
-
         $this->getConnection();
         try {
             if (isset($params['index'])) {
