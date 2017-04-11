@@ -19,6 +19,7 @@ class DataNetwork extends AbstractModels {
 
     public function setDataNetwork(array $params, array $paramsDevices) {
 
+
         $this->getConnection();
         try {
             if (isset($params['index'])) {
@@ -265,7 +266,7 @@ class DataNetwork extends AbstractModels {
                 ],
                 "sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
-                    "peer5Minuts" => [
+                    "peer5Minutes" => [
                         "date_histogram" => [
                             "field" => "dte_register",
                             "interval" => "5m"
@@ -291,7 +292,7 @@ class DataNetwork extends AbstractModels {
         
         $return = [];
         
-        foreach ($resultEs['aggregations']['peer5Minuts']['buckets'] as $key => $value) {
+        foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
             $return[$key]['slot'] = $key;
             $return[$key]['key'] = $value['key_as_string'];
             $return[$key]['num_in_bit_rate'] = $value['num_in_bit_rate_avg']['value'];
