@@ -68,7 +68,7 @@ class DataNetwork extends AbstractModels {
                         }
                     }
 
-                    $paramsNetworkInsert = [
+                    $paramsInsert = [
                         'index' => 'nocom',
                         'type' => 'tab_data_interface',
                         'id' => $id['0']['nextval'],
@@ -92,11 +92,10 @@ class DataNetwork extends AbstractModels {
                         ],
                     ];
 
-                    $ret = $this->es->index($paramsNetworkInsert);
+                    $ret = $this->es->index($paramsInsert);
                 }
             }
         } catch (Exception $exc) {
-            $this->db->rollback();
             throw new Exception('Error While Insert Data Network Interface for JOB PARALLEL - ' . $exc->getMessage());
         }
     }

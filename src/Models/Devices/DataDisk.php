@@ -28,7 +28,7 @@ class DataDisk extends AbstractModels {
                     $this->db->sequence('gen_data_disk', 'nocomdata');
                     $id = $this->db->executeSequence();
 
-                    $paramsDiskInsert = [
+                    $paramsInsert = [
                         'index' => 'nocom',
                         'type' => 'tab_data_disk',
                         'id' => $id['0']['nextval'],
@@ -45,7 +45,7 @@ class DataDisk extends AbstractModels {
                         ],
                     ];
 
-                    $ret = $this->es->index($paramsDiskInsert);
+                    $ret = $this->es->index($paramsInsert);
                 }
             }
         } catch (Exception $exc) {
@@ -89,7 +89,7 @@ class DataDisk extends AbstractModels {
                     $this->db->sequence('gen_data_disk_io', 'nocomdata');
                     $id = $this->db->executeSequence();
 
-                    $paramsDiskIoInsert = [
+                    $paramsInsert = [
                         'index' => 'nocom',
                         'type' => 'tab_data_disk_io',
                         'id' => $id['0']['nextval'],
@@ -107,7 +107,7 @@ class DataDisk extends AbstractModels {
                         ],
                     ];
 
-                    $ret = $this->es->index($paramsDiskIoInsert);
+                    $ret = $this->es->index($paramsInsert);
                 }
             }
         } catch (Exception $exc) {

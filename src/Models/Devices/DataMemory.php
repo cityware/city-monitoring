@@ -23,7 +23,7 @@ class DataMemory extends AbstractModels {
             $this->db->sequence('gen_data_memory', 'nocomdata');
             $id = $this->db->executeSequence();
 
-            $paramsMemoryInsert = [
+            $paramsInsert = [
                 'index' => 'nocom',
                 'type' => 'tab_data_memory',
                 'id' => $id['0']['nextval'],
@@ -41,9 +41,8 @@ class DataMemory extends AbstractModels {
                 ],
             ];
 
-            $ret = $this->es->index($paramsMemoryInsert);
+            $ret = $this->es->index($paramsInsert);
         } catch (Exception $exc) {
-            $this->db->rollback();
             throw new Exception('Error While Insert Data Memory for JOB PARALLEL - ' . $exc->getMessage());
         }
     }

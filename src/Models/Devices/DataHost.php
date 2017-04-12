@@ -24,7 +24,7 @@ class DataHost extends AbstractModels {
             $this->db->sequence('gen_data_host', 'nocomdata');
             $id = $this->db->executeSequence();
 
-            $paramsHostInsert = [
+            $paramsInsert = [
                 'index' => 'nocom',
                 'type' => 'tab_data_host',
                 'id' => $id['0']['nextval'],
@@ -37,9 +37,8 @@ class DataHost extends AbstractModels {
                 ],
             ];
 
-            $ret = $this->es->index($paramsHostInsert);
+            $ret = $this->es->index($paramsInsert);
         } catch (Exception $exc) {
-            $this->db->rollback();
             throw new Exception('Error While Insert Data Host for JOB PARALLEL - ' . $exc->getMessage());
         }
     }

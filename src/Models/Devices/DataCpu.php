@@ -48,7 +48,7 @@ class DataCpu extends AbstractModels {
             $this->db->sequence('gen_data_cpu', 'nocomdata');
             $id = $this->db->executeSequence();
 
-            $paramsCpuInsert = [
+            $paramsInsert = [
                 'index' => 'nocom',
                 'type' => 'tab_data_cpu',
                 'id' => $id['0']['nextval'],
@@ -65,7 +65,7 @@ class DataCpu extends AbstractModels {
                 ],
             ];
 
-            $ret = $this->es->index($paramsCpuInsert);
+            $ret = $this->es->index($paramsInsert);
 
         } catch (Exception $exc) {
             throw new Exception('Error While Insert Data CPU for JOB PARALLEL - ' . $exc->getMessage());
@@ -132,7 +132,7 @@ class DataCpu extends AbstractModels {
                         ],
                         "aggs" => [
                             "num_load_one_min_avg" => [
-                                "sum" => [
+                                "avg" => [
                                     "field" => "num_load_one_min"
                                 ],
                             ],

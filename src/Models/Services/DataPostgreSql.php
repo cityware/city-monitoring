@@ -73,7 +73,7 @@ class DataPostgreSql extends AbstractModels {
         }
     }
 
-    public function setDataPostgreSql(array $params, array $paramsDevices) {
+    public function setDataPostgreSqlDb(array $params, array $paramsDevices) {
         $this->getConnection();
         try {
             $this->db->transaction();
@@ -97,7 +97,32 @@ class DataPostgreSql extends AbstractModels {
         }
     }
 
-    public function setDataPostgreSqlDatabase(array $params, array $paramsDevices) {
+    public function setDataPostgreSql(array $params, array $paramsDevices) {
+        $this->getConnection();
+        try {
+            $this->db->sequence('gen_data_serv_pgsql', 'nocomdata');
+            $id = $this->db->executeSequence();
+
+            $paramsInsert = [
+                'index' => 'nocom',
+                'type' => 'tab_data_serv_pgsql',
+                'id' => $id['0']['nextval'],
+                'body' => [
+                    "cod_device" => $paramsDevices['cod_device'],
+                    $params,
+                    "dte_register" => date('Y-m-d H:i:s'),
+                ],
+            ];
+
+            $ret = $this->es->index($paramsInsert);
+
+            return $id['0']['nextval'];
+        } catch (\Exception $exc) {
+            throw new \Exception('Error While Insert Data Service PostgreSQL for JOB PARALLEL - ' . $exc->getMessage());
+        }
+    }
+
+    public function setDataPostgreSqlDatabaseDb(array $params, array $paramsDevices) {
         $this->getConnection();
         try {
             $this->db->transaction();
@@ -121,7 +146,32 @@ class DataPostgreSql extends AbstractModels {
         }
     }
 
-    public function setDataPostgreSqlDatabaseConnections(array $params, array $paramsDevices) {
+    public function setDataPostgreSqlDatabase(array $params, array $paramsDevices) {
+        $this->getConnection();
+        try {
+            foreach ($params as $valueDatabase) {
+                $this->db->sequence('gen_data_serv_pgsql_database', 'nocomdata');
+                $id = $this->db->executeSequence();
+
+                $paramsInsert = [
+                    'index' => 'nocom',
+                    'type' => 'tab_data_serv_pgsql_database',
+                    'id' => $id['0']['nextval'],
+                    'body' => [
+                        "cod_device" => $paramsDevices['cod_device'],
+                        "seq_data_serv_pgsql" => $paramsDevices['seq_data_serv_pgsql'],
+                        $valueDatabase,
+                        "dte_register" => date('Y-m-d H:i:s'),
+                    ],
+                ];
+                $ret = $this->es->index($paramsInsert);
+            }
+        } catch (\Exception $exc) {
+            throw new \Exception('Error While Insert Data Service PostgreSQL - Databases for JOB PARALLEL - ' . $exc->getMessage());
+        }
+    }
+    
+    public function setDataPostgreSqlDatabaseConnectionsDb(array $params, array $paramsDevices) {
         $this->getConnection();
 
         try {
@@ -145,6 +195,34 @@ class DataPostgreSql extends AbstractModels {
             throw new \Exception('Error While Insert Data Service PostgreSQL - Databases for JOB PARALLEL - ' . $exc->getMessage());
         }
     }
+
+    public function setDataPostgreSqlDatabaseConnections(array $params, array $paramsDevices) {
+        $this->getConnection();
+
+        try {
+            foreach ($params as $valueDatabase) {
+                $this->db->sequence('gen_data_serv_pgsql_db_ip', 'nocomdata');
+                $id = $this->db->executeSequence();
+
+                $paramsInsert = [
+                    'index' => 'nocom',
+                    'type' => 'tab_data_serv_pgsql_db_ip',
+                    'id' => $id['0']['nextval'],
+                    'body' => [
+                        "cod_device" => $paramsDevices['cod_device'],
+                        "seq_data_serv_pgsql" => $paramsDevices['seq_data_serv_pgsql'],
+                        $valueDatabase,
+                        "dte_register" => date('Y-m-d H:i:s'),
+                    ],
+                ];
+                $ret = $this->es->index($paramsInsert);
+            }
+        } catch (\Exception $exc) {
+            throw new \Exception('Error While Insert Data Service PostgreSQL - Databases for JOB PARALLEL - ' . $exc->getMessage());
+        }
+    }
+    
+    
 
     private function monitoringAdapter() {
         $this->dbConnectionNewAdapter = new ZendDbAdapter(Array(
