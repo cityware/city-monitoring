@@ -21,7 +21,7 @@ class DataApacheHttpd extends AbstractModels {
         $this->getConnection();
         try {
             $this->db->transaction();
-           
+
             foreach ($params as $key => $value) {
                 $this->db->insert($key, (float) $value);
             }
@@ -37,7 +37,7 @@ class DataApacheHttpd extends AbstractModels {
             throw new \Exception('Error While Insert Data Service Apache Httpd for JOB PARALLEL - ' . $exc->getMessage());
         }
     }
-    
+
     public function setDataApacheHttpd(array $params, array $paramsDevices) {
         $this->getConnection();
         try {
@@ -50,10 +50,11 @@ class DataApacheHttpd extends AbstractModels {
                 'id' => $id['0']['nextval'],
                 'body' => [
                     "cod_device" => $paramsDevices['cod_device'],
-                    $params,
                     "dte_register" => date('Y-m-d H:i:s'),
                 ],
             ];
+
+            $paramsInsert['body'] = array_merge($paramsInsert['body'], $params);
 
             $ret = $this->es->index($paramsInsert);
         } catch (\Exception $exc) {
@@ -92,7 +93,7 @@ class DataApacheHttpd extends AbstractModels {
         $this->db->orderBy("1", true);
         $this->db->setDebug(false);
         $rsDataCpuLoadLastHour = $this->db->executeSelectQuery();
-        
+
         $return = Array();
 
         foreach ($rsDataCpuLoadLastHour as $value) {
@@ -101,10 +102,10 @@ class DataApacheHttpd extends AbstractModels {
 
         return $return;
     }
-    
+
     public function getDataApacheHttpdCurrentHour(array $params) {
         $this->getConnection();
-        
+
         $paramsEs = [
             'index' => 'nocom',
             'type' => 'tab_data_serv_apache',
@@ -127,7 +128,7 @@ class DataApacheHttpd extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" =>["order" => "desc"]]],
+                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -262,7 +263,6 @@ class DataApacheHttpd extends AbstractModels {
             $return[$key]['num_gracefully_finishing'] = $value['num_gracefully_finishing_avg']['value'];
             $return[$key]['num_idle_cleanup_worker'] = $value['num_idle_cleanup_worker_avg']['value'];
             $return[$key]['num_open_slot_no_current_process'] = $value['num_open_slot_no_current_process_avg']['value'];
-            
         }
 
         return $return;
@@ -308,10 +308,11 @@ class DataApacheHttpd extends AbstractModels {
 
         return $return;
     }
-    
+
     public function getDataApacheHttpdCurrentDay(array $params) {
         $this->getConnection();
-        
+        $dateOperations = new \Cityware\Format\DateOperations();
+
         $paramsEs = [
             'index' => 'nocom',
             'type' => 'tab_data_serv_apache',
@@ -334,7 +335,7 @@ class DataApacheHttpd extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" =>["order" => "desc"]]],
+                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -448,28 +449,30 @@ class DataApacheHttpd extends AbstractModels {
         $return = [];
 
         foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
-            $return[$key]['slot'] = $key;
-            $return[$key]['key'] = $value['key_as_string'];
-            $return[$key]['num_total_accesses'] = $value['num_total_accesses_avg']['value'];
-            $return[$key]['num_total_bytes'] = $value['num_total_bytes_avg']['value'];
-            $return[$key]['num_cpu_load'] = $value['num_cpu_load_avg']['value'];
-            $return[$key]['num_requests_seconds'] = $value['num_requests_seconds_avg']['value'];
-            $return[$key]['num_bytes_seconds'] = $value['num_bytes_seconds_avg']['value'];
-            $return[$key]['num_bytes_requests'] = $value['num_bytes_requests_avg']['value'];
-            $return[$key]['num_busy_workers'] = $value['num_busy_workers_avg']['value'];
-            $return[$key]['num_idle_workers'] = $value['num_idle_workers_avg']['value'];
-            $return[$key]['num_waiting_connection'] = $value['num_waiting_connection_avg']['value'];
-            $return[$key]['num_starting_up'] = $value['num_starting_up_avg']['value'];
-            $return[$key]['num_reading_request'] = $value['num_reading_request_avg']['value'];
-            $return[$key]['num_sending_reply'] = $value['num_sending_reply_avg']['value'];
-            $return[$key]['num_keepalive_read'] = $value['num_keepalive_read_avg']['value'];
-            $return[$key]['num_dns_lookup'] = $value['num_dns_lookup_avg']['value'];
-            $return[$key]['num_closing_connection'] = $value['num_closing_connection_avg']['value'];
-            $return[$key]['num_logging'] = $value['num_logging_avg']['value'];
-            $return[$key]['num_gracefully_finishing'] = $value['num_gracefully_finishing_avg']['value'];
-            $return[$key]['num_idle_cleanup_worker'] = $value['num_idle_cleanup_worker_avg']['value'];
-            $return[$key]['num_open_slot_no_current_process'] = $value['num_open_slot_no_current_process_avg']['value'];
-            
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('H');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['key'] = $value['key_as_string'];
+            $return[$keyDate]['num_total_accesses'] = $value['num_total_accesses_avg']['value'];
+            $return[$keyDate]['num_total_bytes'] = $value['num_total_bytes_avg']['value'];
+            $return[$keyDate]['num_cpu_load'] = $value['num_cpu_load_avg']['value'];
+            $return[$keyDate]['num_requests_seconds'] = $value['num_requests_seconds_avg']['value'];
+            $return[$keyDate]['num_bytes_seconds'] = $value['num_bytes_seconds_avg']['value'];
+            $return[$keyDate]['num_bytes_requests'] = $value['num_bytes_requests_avg']['value'];
+            $return[$keyDate]['num_busy_workers'] = $value['num_busy_workers_avg']['value'];
+            $return[$keyDate]['num_idle_workers'] = $value['num_idle_workers_avg']['value'];
+            $return[$keyDate]['num_waiting_connection'] = $value['num_waiting_connection_avg']['value'];
+            $return[$keyDate]['num_starting_up'] = $value['num_starting_up_avg']['value'];
+            $return[$keyDate]['num_reading_request'] = $value['num_reading_request_avg']['value'];
+            $return[$keyDate]['num_sending_reply'] = $value['num_sending_reply_avg']['value'];
+            $return[$keyDate]['num_keepalive_read'] = $value['num_keepalive_read_avg']['value'];
+            $return[$keyDate]['num_dns_lookup'] = $value['num_dns_lookup_avg']['value'];
+            $return[$keyDate]['num_closing_connection'] = $value['num_closing_connection_avg']['value'];
+            $return[$keyDate]['num_logging'] = $value['num_logging_avg']['value'];
+            $return[$keyDate]['num_gracefully_finishing'] = $value['num_gracefully_finishing_avg']['value'];
+            $return[$keyDate]['num_idle_cleanup_worker'] = $value['num_idle_cleanup_worker_avg']['value'];
+            $return[$keyDate]['num_open_slot_no_current_process'] = $value['num_open_slot_no_current_process_avg']['value'];
         }
 
         return $return;
@@ -515,10 +518,11 @@ class DataApacheHttpd extends AbstractModels {
 
         return $return;
     }
-    
+
     public function getDataApacheHttpdCurrentMonth(array $params) {
         $this->getConnection();
-        
+        $dateOperations = new \Cityware\Format\DateOperations();
+
         $paramsEs = [
             'index' => 'nocom',
             'type' => 'tab_data_serv_apache',
@@ -541,7 +545,7 @@ class DataApacheHttpd extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" =>["order" => "desc"]]],
+                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -655,28 +659,30 @@ class DataApacheHttpd extends AbstractModels {
         $return = [];
 
         foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
-            $return[$key]['slot'] = $key;
-            $return[$key]['key'] = $value['key_as_string'];
-            $return[$key]['num_total_accesses'] = $value['num_total_accesses_avg']['value'];
-            $return[$key]['num_total_bytes'] = $value['num_total_bytes_avg']['value'];
-            $return[$key]['num_cpu_load'] = $value['num_cpu_load_avg']['value'];
-            $return[$key]['num_requests_seconds'] = $value['num_requests_seconds_avg']['value'];
-            $return[$key]['num_bytes_seconds'] = $value['num_bytes_seconds_avg']['value'];
-            $return[$key]['num_bytes_requests'] = $value['num_bytes_requests_avg']['value'];
-            $return[$key]['num_busy_workers'] = $value['num_busy_workers_avg']['value'];
-            $return[$key]['num_idle_workers'] = $value['num_idle_workers_avg']['value'];
-            $return[$key]['num_waiting_connection'] = $value['num_waiting_connection_avg']['value'];
-            $return[$key]['num_starting_up'] = $value['num_starting_up_avg']['value'];
-            $return[$key]['num_reading_request'] = $value['num_reading_request_avg']['value'];
-            $return[$key]['num_sending_reply'] = $value['num_sending_reply_avg']['value'];
-            $return[$key]['num_keepalive_read'] = $value['num_keepalive_read_avg']['value'];
-            $return[$key]['num_dns_lookup'] = $value['num_dns_lookup_avg']['value'];
-            $return[$key]['num_closing_connection'] = $value['num_closing_connection_avg']['value'];
-            $return[$key]['num_logging'] = $value['num_logging_avg']['value'];
-            $return[$key]['num_gracefully_finishing'] = $value['num_gracefully_finishing_avg']['value'];
-            $return[$key]['num_idle_cleanup_worker'] = $value['num_idle_cleanup_worker_avg']['value'];
-            $return[$key]['num_open_slot_no_current_process'] = $value['num_open_slot_no_current_process_avg']['value'];
-            
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('d');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['key'] = $value['key_as_string'];
+            $return[$keyDate]['num_total_accesses'] = $value['num_total_accesses_avg']['value'];
+            $return[$keyDate]['num_total_bytes'] = $value['num_total_bytes_avg']['value'];
+            $return[$keyDate]['num_cpu_load'] = $value['num_cpu_load_avg']['value'];
+            $return[$keyDate]['num_requests_seconds'] = $value['num_requests_seconds_avg']['value'];
+            $return[$keyDate]['num_bytes_seconds'] = $value['num_bytes_seconds_avg']['value'];
+            $return[$keyDate]['num_bytes_requests'] = $value['num_bytes_requests_avg']['value'];
+            $return[$keyDate]['num_busy_workers'] = $value['num_busy_workers_avg']['value'];
+            $return[$keyDate]['num_idle_workers'] = $value['num_idle_workers_avg']['value'];
+            $return[$keyDate]['num_waiting_connection'] = $value['num_waiting_connection_avg']['value'];
+            $return[$keyDate]['num_starting_up'] = $value['num_starting_up_avg']['value'];
+            $return[$keyDate]['num_reading_request'] = $value['num_reading_request_avg']['value'];
+            $return[$keyDate]['num_sending_reply'] = $value['num_sending_reply_avg']['value'];
+            $return[$keyDate]['num_keepalive_read'] = $value['num_keepalive_read_avg']['value'];
+            $return[$keyDate]['num_dns_lookup'] = $value['num_dns_lookup_avg']['value'];
+            $return[$keyDate]['num_closing_connection'] = $value['num_closing_connection_avg']['value'];
+            $return[$keyDate]['num_logging'] = $value['num_logging_avg']['value'];
+            $return[$keyDate]['num_gracefully_finishing'] = $value['num_gracefully_finishing_avg']['value'];
+            $return[$keyDate]['num_idle_cleanup_worker'] = $value['num_idle_cleanup_worker_avg']['value'];
+            $return[$keyDate]['num_open_slot_no_current_process'] = $value['num_open_slot_no_current_process_avg']['value'];
         }
 
         return $return;
@@ -713,7 +719,7 @@ class DataApacheHttpd extends AbstractModels {
         $this->db->orderBy("1", true);
         $this->db->setDebug(false);
         $rsDataCpuLoadLastYear = $this->db->executeSelectQuery();
-        
+
         $return = Array();
 
         foreach ($rsDataCpuLoadLastYear as $value) {
@@ -725,7 +731,8 @@ class DataApacheHttpd extends AbstractModels {
 
     public function getDataApacheHttpdCurrentYear(array $params) {
         $this->getConnection();
-        
+        $dateOperations = new \Cityware\Format\DateOperations();
+
         $paramsEs = [
             'index' => 'nocom',
             'type' => 'tab_data_serv_apache',
@@ -748,7 +755,7 @@ class DataApacheHttpd extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" =>["order" => "desc"]]],
+                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -862,28 +869,30 @@ class DataApacheHttpd extends AbstractModels {
         $return = [];
 
         foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
-            $return[$key]['slot'] = $key;
-            $return[$key]['key'] = $value['key_as_string'];
-            $return[$key]['num_total_accesses'] = $value['num_total_accesses_avg']['value'];
-            $return[$key]['num_total_bytes'] = $value['num_total_bytes_avg']['value'];
-            $return[$key]['num_cpu_load'] = $value['num_cpu_load_avg']['value'];
-            $return[$key]['num_requests_seconds'] = $value['num_requests_seconds_avg']['value'];
-            $return[$key]['num_bytes_seconds'] = $value['num_bytes_seconds_avg']['value'];
-            $return[$key]['num_bytes_requests'] = $value['num_bytes_requests_avg']['value'];
-            $return[$key]['num_busy_workers'] = $value['num_busy_workers_avg']['value'];
-            $return[$key]['num_idle_workers'] = $value['num_idle_workers_avg']['value'];
-            $return[$key]['num_waiting_connection'] = $value['num_waiting_connection_avg']['value'];
-            $return[$key]['num_starting_up'] = $value['num_starting_up_avg']['value'];
-            $return[$key]['num_reading_request'] = $value['num_reading_request_avg']['value'];
-            $return[$key]['num_sending_reply'] = $value['num_sending_reply_avg']['value'];
-            $return[$key]['num_keepalive_read'] = $value['num_keepalive_read_avg']['value'];
-            $return[$key]['num_dns_lookup'] = $value['num_dns_lookup_avg']['value'];
-            $return[$key]['num_closing_connection'] = $value['num_closing_connection_avg']['value'];
-            $return[$key]['num_logging'] = $value['num_logging_avg']['value'];
-            $return[$key]['num_gracefully_finishing'] = $value['num_gracefully_finishing_avg']['value'];
-            $return[$key]['num_idle_cleanup_worker'] = $value['num_idle_cleanup_worker_avg']['value'];
-            $return[$key]['num_open_slot_no_current_process'] = $value['num_open_slot_no_current_process_avg']['value'];
-            
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('m');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['key'] = $value['key_as_string'];
+            $return[$keyDate]['num_total_accesses'] = $value['num_total_accesses_avg']['value'];
+            $return[$keyDate]['num_total_bytes'] = $value['num_total_bytes_avg']['value'];
+            $return[$keyDate]['num_cpu_load'] = $value['num_cpu_load_avg']['value'];
+            $return[$keyDate]['num_requests_seconds'] = $value['num_requests_seconds_avg']['value'];
+            $return[$keyDate]['num_bytes_seconds'] = $value['num_bytes_seconds_avg']['value'];
+            $return[$keyDate]['num_bytes_requests'] = $value['num_bytes_requests_avg']['value'];
+            $return[$keyDate]['num_busy_workers'] = $value['num_busy_workers_avg']['value'];
+            $return[$keyDate]['num_idle_workers'] = $value['num_idle_workers_avg']['value'];
+            $return[$keyDate]['num_waiting_connection'] = $value['num_waiting_connection_avg']['value'];
+            $return[$keyDate]['num_starting_up'] = $value['num_starting_up_avg']['value'];
+            $return[$keyDate]['num_reading_request'] = $value['num_reading_request_avg']['value'];
+            $return[$keyDate]['num_sending_reply'] = $value['num_sending_reply_avg']['value'];
+            $return[$keyDate]['num_keepalive_read'] = $value['num_keepalive_read_avg']['value'];
+            $return[$keyDate]['num_dns_lookup'] = $value['num_dns_lookup_avg']['value'];
+            $return[$keyDate]['num_closing_connection'] = $value['num_closing_connection_avg']['value'];
+            $return[$keyDate]['num_logging'] = $value['num_logging_avg']['value'];
+            $return[$keyDate]['num_gracefully_finishing'] = $value['num_gracefully_finishing_avg']['value'];
+            $return[$keyDate]['num_idle_cleanup_worker'] = $value['num_idle_cleanup_worker_avg']['value'];
+            $return[$keyDate]['num_open_slot_no_current_process'] = $value['num_open_slot_no_current_process_avg']['value'];
         }
 
         return $return;

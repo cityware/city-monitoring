@@ -50,10 +50,11 @@ class DataPhpFpm extends AbstractModels {
                 'id' => $id['0']['nextval'],
                 'body' => [
                     "cod_device" => $paramsDevices['cod_device'],
-                    $params,
                     "dte_register" => date('Y-m-d H:i:s'),
                 ],
             ];
+
+            $paramsInsert['body'] = array_merge($paramsInsert['body'], $params);
 
             $ret = $this->es->index($paramsInsert);
         } catch (\Exception $exc) {
@@ -118,7 +119,7 @@ class DataPhpFpm extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" => ["order" => "desc"]]],
+                //"sort" => [["dte_register" => ["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -238,6 +239,7 @@ class DataPhpFpm extends AbstractModels {
 
     public function getDataPhpFpmCurrentDay(array $params) {
         $this->getConnection();
+        $dateOperations = new \Cityware\Format\DateOperations();
 
         $paramsEs = [
             'index' => 'nocom',
@@ -261,7 +263,7 @@ class DataPhpFpm extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" => ["order" => "desc"]]],
+                //"sort" => [["dte_register" => ["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -330,18 +332,21 @@ class DataPhpFpm extends AbstractModels {
         $return = [];
 
         foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
-            $return[$key]['slot'] = $key;
-            $return[$key]['key'] = $value['key_as_string'];
-            $return[$key]['num_accepted_connections'] = $value['num_accepted_connections_avg']['value'];
-            $return[$key]['num_listen_queue'] = $value['num_listen_queue_avg']['value'];
-            $return[$key]['num_max_listen_queue'] = $value['num_max_listen_queue_avg']['value'];
-            $return[$key]['num_listen_queue_len'] = $value['num_listen_queue_len_avg']['value'];
-            $return[$key]['num_active_processes'] = $value['num_active_processes_avg']['value'];
-            $return[$key]['num_idle_processes'] = $value['num_idle_processes_avg']['value'];
-            $return[$key]['num_max_active_processes'] = $value['num_max_active_processes_avg']['value'];
-            $return[$key]['num_slow_requests'] = $value['num_slow_requests_avg']['value'];
-            $return[$key]['num_max_children_reached'] = $value['num_max_children_reached_avg']['value'];
-            $return[$key]['num_total_processes'] = $value['num_total_processes_avg']['value'];
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('H');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['key'] = $value['key_as_string'];
+            $return[$keyDate]['num_accepted_connections'] = $value['num_accepted_connections_avg']['value'];
+            $return[$keyDate]['num_listen_queue'] = $value['num_listen_queue_avg']['value'];
+            $return[$keyDate]['num_max_listen_queue'] = $value['num_max_listen_queue_avg']['value'];
+            $return[$keyDate]['num_listen_queue_len'] = $value['num_listen_queue_len_avg']['value'];
+            $return[$keyDate]['num_active_processes'] = $value['num_active_processes_avg']['value'];
+            $return[$keyDate]['num_idle_processes'] = $value['num_idle_processes_avg']['value'];
+            $return[$keyDate]['num_max_active_processes'] = $value['num_max_active_processes_avg']['value'];
+            $return[$keyDate]['num_slow_requests'] = $value['num_slow_requests_avg']['value'];
+            $return[$keyDate]['num_max_children_reached'] = $value['num_max_children_reached_avg']['value'];
+            $return[$keyDate]['num_total_processes'] = $value['num_total_processes_avg']['value'];
         }
 
         return $return;
@@ -381,6 +386,7 @@ class DataPhpFpm extends AbstractModels {
 
     public function getDataPhpFpmCurrentMonth(array $params) {
         $this->getConnection();
+        $dateOperations = new \Cityware\Format\DateOperations();
 
         $paramsEs = [
             'index' => 'nocom',
@@ -404,7 +410,7 @@ class DataPhpFpm extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" => ["order" => "desc"]]],
+                //"sort" => [["dte_register" => ["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -473,18 +479,21 @@ class DataPhpFpm extends AbstractModels {
         $return = [];
 
         foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
-            $return[$key]['slot'] = $key;
-            $return[$key]['key'] = $value['key_as_string'];
-            $return[$key]['num_accepted_connections'] = $value['num_accepted_connections_avg']['value'];
-            $return[$key]['num_listen_queue'] = $value['num_listen_queue_avg']['value'];
-            $return[$key]['num_max_listen_queue'] = $value['num_max_listen_queue_avg']['value'];
-            $return[$key]['num_listen_queue_len'] = $value['num_listen_queue_len_avg']['value'];
-            $return[$key]['num_active_processes'] = $value['num_active_processes_avg']['value'];
-            $return[$key]['num_idle_processes'] = $value['num_idle_processes_avg']['value'];
-            $return[$key]['num_max_active_processes'] = $value['num_max_active_processes_avg']['value'];
-            $return[$key]['num_slow_requests'] = $value['num_slow_requests_avg']['value'];
-            $return[$key]['num_max_children_reached'] = $value['num_max_children_reached_avg']['value'];
-            $return[$key]['num_total_processes'] = $value['num_total_processes_avg']['value'];
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('d');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['key'] = $value['key_as_string'];
+            $return[$keyDate]['num_accepted_connections'] = $value['num_accepted_connections_avg']['value'];
+            $return[$keyDate]['num_listen_queue'] = $value['num_listen_queue_avg']['value'];
+            $return[$keyDate]['num_max_listen_queue'] = $value['num_max_listen_queue_avg']['value'];
+            $return[$keyDate]['num_listen_queue_len'] = $value['num_listen_queue_len_avg']['value'];
+            $return[$keyDate]['num_active_processes'] = $value['num_active_processes_avg']['value'];
+            $return[$keyDate]['num_idle_processes'] = $value['num_idle_processes_avg']['value'];
+            $return[$keyDate]['num_max_active_processes'] = $value['num_max_active_processes_avg']['value'];
+            $return[$keyDate]['num_slow_requests'] = $value['num_slow_requests_avg']['value'];
+            $return[$keyDate]['num_max_children_reached'] = $value['num_max_children_reached_avg']['value'];
+            $return[$keyDate]['num_total_processes'] = $value['num_total_processes_avg']['value'];
         }
 
         return $return;
@@ -524,6 +533,7 @@ class DataPhpFpm extends AbstractModels {
 
     public function getDataPhpFpmCurrentYear(array $params) {
         $this->getConnection();
+        $dateOperations = new \Cityware\Format\DateOperations();
 
         $paramsEs = [
             'index' => 'nocom',
@@ -547,7 +557,7 @@ class DataPhpFpm extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" => ["order" => "desc"]]],
+                //"sort" => [["dte_register" => ["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -616,18 +626,21 @@ class DataPhpFpm extends AbstractModels {
         $return = [];
 
         foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
-            $return[$key]['slot'] = $key;
-            $return[$key]['key'] = $value['key_as_string'];
-            $return[$key]['num_accepted_connections'] = $value['num_accepted_connections_avg']['value'];
-            $return[$key]['num_listen_queue'] = $value['num_listen_queue_avg']['value'];
-            $return[$key]['num_max_listen_queue'] = $value['num_max_listen_queue_avg']['value'];
-            $return[$key]['num_listen_queue_len'] = $value['num_listen_queue_len_avg']['value'];
-            $return[$key]['num_active_processes'] = $value['num_active_processes_avg']['value'];
-            $return[$key]['num_idle_processes'] = $value['num_idle_processes_avg']['value'];
-            $return[$key]['num_max_active_processes'] = $value['num_max_active_processes_avg']['value'];
-            $return[$key]['num_slow_requests'] = $value['num_slow_requests_avg']['value'];
-            $return[$key]['num_max_children_reached'] = $value['num_max_children_reached_avg']['value'];
-            $return[$key]['num_total_processes'] = $value['num_total_processes_avg']['value'];
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('m');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['key'] = $value['key_as_string'];
+            $return[$keyDate]['num_accepted_connections'] = $value['num_accepted_connections_avg']['value'];
+            $return[$keyDate]['num_listen_queue'] = $value['num_listen_queue_avg']['value'];
+            $return[$keyDate]['num_max_listen_queue'] = $value['num_max_listen_queue_avg']['value'];
+            $return[$keyDate]['num_listen_queue_len'] = $value['num_listen_queue_len_avg']['value'];
+            $return[$keyDate]['num_active_processes'] = $value['num_active_processes_avg']['value'];
+            $return[$keyDate]['num_idle_processes'] = $value['num_idle_processes_avg']['value'];
+            $return[$keyDate]['num_max_active_processes'] = $value['num_max_active_processes_avg']['value'];
+            $return[$keyDate]['num_slow_requests'] = $value['num_slow_requests_avg']['value'];
+            $return[$keyDate]['num_max_children_reached'] = $value['num_max_children_reached_avg']['value'];
+            $return[$keyDate]['num_total_processes'] = $value['num_total_processes_avg']['value'];
         }
 
         return $return;

@@ -66,7 +66,6 @@ class DataCpu extends AbstractModels {
             ];
 
             $ret = $this->es->index($paramsInsert);
-
         } catch (Exception $exc) {
             throw new Exception('Error While Insert Data CPU for JOB PARALLEL - ' . $exc->getMessage());
         }
@@ -123,7 +122,7 @@ class DataCpu extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" =>["order" => "desc"]]],
+                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -201,6 +200,7 @@ class DataCpu extends AbstractModels {
 
     public function getDataCpuLoadCurrentDay(array $params) {
         $this->getConnection();
+        $dateOperations = new \Cityware\Format\DateOperations();
 
         $paramsEs = [
             'index' => 'nocom',
@@ -224,7 +224,7 @@ class DataCpu extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" =>["order" => "desc"]]],
+                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -233,7 +233,7 @@ class DataCpu extends AbstractModels {
                         ],
                         "aggs" => [
                             "num_load_one_min_avg" => [
-                                "sum" => [
+                                "avg" => [
                                     "field" => "num_load_one_min"
                                 ],
                             ],
@@ -263,12 +263,15 @@ class DataCpu extends AbstractModels {
         $return = [];
 
         foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
-            $return[$key]['slot'] = $key;
-            $return[$key]['key'] = $value['key_as_string'];
-            $return[$key]['num_load_one_min'] = $value['num_load_one_min_avg']['value'];
-            $return[$key]['num_load_five_min'] = $value['num_load_five_min_avg']['value'];
-            $return[$key]['num_load_fifteen_min'] = $value['num_load_fifteen_min_avg']['value'];
-            $return[$key]['num_load_percentage'] = $value['num_load_percentage_avg']['value'];
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('H');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['key'] = $value['key_as_string'];
+            $return[$keyDate]['num_load_one_min'] = $value['num_load_one_min_avg']['value'];
+            $return[$keyDate]['num_load_five_min'] = $value['num_load_five_min_avg']['value'];
+            $return[$keyDate]['num_load_fifteen_min'] = $value['num_load_fifteen_min_avg']['value'];
+            $return[$keyDate]['num_load_percentage'] = $value['num_load_percentage_avg']['value'];
         }
 
         return $return;
@@ -302,6 +305,7 @@ class DataCpu extends AbstractModels {
 
     public function getDataCpuLoadCurrentMonth(array $params) {
         $this->getConnection();
+        $dateOperations = new \Cityware\Format\DateOperations();
 
         $paramsEs = [
             'index' => 'nocom',
@@ -325,7 +329,7 @@ class DataCpu extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" =>["order" => "desc"]]],
+                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -334,7 +338,7 @@ class DataCpu extends AbstractModels {
                         ],
                         "aggs" => [
                             "num_load_one_min_avg" => [
-                                "sum" => [
+                                "avg" => [
                                     "field" => "num_load_one_min"
                                 ],
                             ],
@@ -361,15 +365,21 @@ class DataCpu extends AbstractModels {
 
         $resultEs = $this->es->search($paramsEs);
 
+
+
+
         $return = [];
 
         foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
-            $return[$key]['slot'] = $key;
-            $return[$key]['key'] = $value['key_as_string'];
-            $return[$key]['num_load_one_min'] = $value['num_load_one_min_avg']['value'];
-            $return[$key]['num_load_five_min'] = $value['num_load_five_min_avg']['value'];
-            $return[$key]['num_load_fifteen_min'] = $value['num_load_fifteen_min_avg']['value'];
-            $return[$key]['num_load_percentage'] = $value['num_load_percentage_avg']['value'];
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('d');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['key'] = $value['key_as_string'];
+            $return[$keyDate]['num_load_one_min'] = $value['num_load_one_min_avg']['value'];
+            $return[$keyDate]['num_load_five_min'] = $value['num_load_five_min_avg']['value'];
+            $return[$keyDate]['num_load_fifteen_min'] = $value['num_load_fifteen_min_avg']['value'];
+            $return[$keyDate]['num_load_percentage'] = $value['num_load_percentage_avg']['value'];
         }
 
         return $return;
@@ -403,6 +413,7 @@ class DataCpu extends AbstractModels {
 
     public function getDataCpuLoadCurrentYear(array $params) {
         $this->getConnection();
+        $dateOperations = new \Cityware\Format\DateOperations();
 
         $paramsEs = [
             'index' => 'nocom',
@@ -426,7 +437,7 @@ class DataCpu extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" =>["order" => "desc"]]],
+                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -435,7 +446,7 @@ class DataCpu extends AbstractModels {
                         ],
                         "aggs" => [
                             "num_load_one_min_avg" => [
-                                "sum" => [
+                                "avg" => [
                                     "field" => "num_load_one_min"
                                 ],
                             ],
@@ -465,12 +476,15 @@ class DataCpu extends AbstractModels {
         $return = [];
 
         foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
-            $return[$key]['slot'] = $key;
-            $return[$key]['key'] = $value['key_as_string'];
-            $return[$key]['num_load_one_min'] = $value['num_load_one_min_avg']['value'];
-            $return[$key]['num_load_five_min'] = $value['num_load_five_min_avg']['value'];
-            $return[$key]['num_load_fifteen_min'] = $value['num_load_fifteen_min_avg']['value'];
-            $return[$key]['num_load_percentage'] = $value['num_load_percentage_avg']['value'];
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('m');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['key'] = $value['key_as_string'];
+            $return[$keyDate]['num_load_one_min'] = $value['num_load_one_min_avg']['value'];
+            $return[$keyDate]['num_load_five_min'] = $value['num_load_five_min_avg']['value'];
+            $return[$keyDate]['num_load_fifteen_min'] = $value['num_load_fifteen_min_avg']['value'];
+            $return[$keyDate]['num_load_percentage'] = $value['num_load_percentage_avg']['value'];
         }
 
         return $return;

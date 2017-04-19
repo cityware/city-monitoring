@@ -109,10 +109,14 @@ class DataPostgreSql extends AbstractModels {
                 'id' => $id['0']['nextval'],
                 'body' => [
                     "cod_device" => $paramsDevices['cod_device'],
-                    $params,
                     "dte_register" => date('Y-m-d H:i:s'),
                 ],
             ];
+
+            $paramsInsert['body'] = array_merge($paramsInsert['body'], $params);
+
+            echo '<pre>';
+            print_r($paramsInsert);
 
             $ret = $this->es->index($paramsInsert);
 
@@ -160,17 +164,19 @@ class DataPostgreSql extends AbstractModels {
                     'body' => [
                         "cod_device" => $paramsDevices['cod_device'],
                         "seq_data_serv_pgsql" => $paramsDevices['seq_data_serv_pgsql'],
-                        $valueDatabase,
                         "dte_register" => date('Y-m-d H:i:s'),
                     ],
                 ];
+
+                $paramsInsert['body'] = array_merge($paramsInsert['body'], $valueDatabase);
+
                 $ret = $this->es->index($paramsInsert);
             }
         } catch (\Exception $exc) {
             throw new \Exception('Error While Insert Data Service PostgreSQL - Databases for JOB PARALLEL - ' . $exc->getMessage());
         }
     }
-    
+
     public function setDataPostgreSqlDatabaseConnectionsDb(array $params, array $paramsDevices) {
         $this->getConnection();
 
@@ -211,18 +217,18 @@ class DataPostgreSql extends AbstractModels {
                     'body' => [
                         "cod_device" => $paramsDevices['cod_device'],
                         "seq_data_serv_pgsql" => $paramsDevices['seq_data_serv_pgsql'],
-                        $valueDatabase,
                         "dte_register" => date('Y-m-d H:i:s'),
                     ],
                 ];
+
+                $paramsInsert['body'] = array_merge($paramsInsert['body'], $valueDatabase);
+
                 $ret = $this->es->index($paramsInsert);
             }
         } catch (\Exception $exc) {
             throw new \Exception('Error While Insert Data Service PostgreSQL - Databases for JOB PARALLEL - ' . $exc->getMessage());
         }
     }
-    
-    
 
     private function monitoringAdapter() {
         $this->dbConnectionNewAdapter = new ZendDbAdapter(Array(
@@ -390,14 +396,26 @@ class DataPostgreSql extends AbstractModels {
         $params = $adapter->getDriver()->getConnection()->getConnectionParameters();
 
         try {
-            $queryCheckPoints = "
-        SELECT count(*) AS total_connections, 
-            client_addr,
-            datname
-            FROM pg_stat_activity
-        WHERE datname !~ 'postgres|template' AND client_addr NOT IN('::1','127.0.0.1')
-        GROUP BY 2, 3
-        ";
+            /*
+              $queryCheckPoints = "
+              SELECT count(*) AS total_connections,
+              client_addr,
+              datname
+              FROM pg_stat_activity
+              WHERE datname !~ 'postgres|template' AND client_addr NOT IN('::1','127.0.0.1')
+              GROUP BY 2, 3
+              ";
+             * 
+             */
+
+            $queryCheckPoints = "SELECT COUNT (*) AS total_connections,
+                                        psa.client_addr,
+                                        s.datname
+                                FROM pg_stat_activity AS psa
+                                JOIN pg_stat_database AS s ON s.datname = psa.datname
+                                WHERE psa.datname !~ 'postgres|template'
+                                GROUP BY 2, 3;
+                                ";
 
             $results = $adapter->query($queryCheckPoints);
 
@@ -411,7 +429,7 @@ class DataPostgreSql extends AbstractModels {
         }
     }
 
-    public function getDataPostgreSqlDatabases($id) {
+    public function getDataPostgreSqlDatabasesDb($id) {
         $this->getConnection();
 
         $this->db->select("nam_database");
@@ -427,6 +445,57 @@ class DataPostgreSql extends AbstractModels {
         return $rsDataPostgreSqlById;
     }
 
+    public function getDataPostgreSqlDatabases($id) {
+        $this->getConnection();
+
+        $paramsEs = [
+            'index' => 'nocom',
+            'type' => 'tab_data_serv_pgsql_database',
+            'size' => '0',
+            'body' => [
+                'query' => [
+                    "bool" => [
+                        'must' => [
+                            'term' => [
+                                'cod_device' => $id,
+                            ],
+                        ],
+                    ],
+                ],
+                "aggs" => [
+                    "database" => [
+                        "terms" => [
+                            "field" => "nam_database",
+                            "size" => 1000,
+                        ],
+                        "aggs" => [
+                            "hash" => [
+                                "terms" => [
+                                    "field" => "des_hash",
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $resultEs = $this->es->search($paramsEs);
+
+        $return = [];
+
+        $keyDatabases = 0;
+        foreach ($resultEs['aggregations']['database']['buckets'] as $valueDatabase) {
+            foreach ($valueDatabase['hash']['buckets'] as $valueHash) {
+                $return[$keyDatabases]['nam_database'] = $valueDatabase['key'];
+                $return[$keyDatabases]['des_hash'] = $valueHash['key'];
+                $keyDatabases++;
+            }
+        }
+
+        return $return;
+    }
+
     public function getDataPostgreSqlByDeviceId($id) {
         $this->getConnection();
 
@@ -440,7 +509,7 @@ class DataPostgreSql extends AbstractModels {
         return $rsDataPostgreSqlById;
     }
 
-    public function getDataPostgreSqlTopTenDatabaseConnections(array $params) {
+    public function getDataPostgreSqlTopTenDatabaseConnectionsDb(array $params) {
         $this->getConnection();
         $this->db->select("MAX(tdspd.num_total_connections)", 'max_total_connections', true);
         $this->db->select("tdspd.nam_database");
@@ -459,7 +528,67 @@ class DataPostgreSql extends AbstractModels {
         return $rsDataPostgreSqlTopTenDatabaseConnections;
     }
 
-    public function getDataPostgreSqlTopTenDatabaseConnectionsIp(array $params) {
+    public function getDataPostgreSqlTopTenDatabaseConnections(array $params) {
+        $this->getConnection();
+
+        $paramsEs = [
+            'index' => 'nocom',
+            'type' => 'tab_data_serv_pgsql_database',
+            'size' => '0',
+            'body' => [
+                'query' => [
+                    "bool" => [
+                        'must' => [
+                            'term' => [
+                                'cod_device' => $params['cod_device'],
+                            ],
+                        ],
+                        'filter' => [
+                            "range" => [
+                                "dte_register" => [
+                                    "gte" => $params['dte_start'],
+                                    "lte" => $params['dte_finish'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                //"sort" => [["dte_register" => ["order" => "desc"]]],
+                "aggs" => [
+                    "topTenDatabaseCon" => [
+                        "terms" => [
+                            "field" => "nam_database",
+                            "order" => [
+                                'num_total_connections_max' => "desc"
+                            ],
+                            "size" => 10,
+                        ],
+                        "aggs" => [
+                            "num_total_connections_max" => [
+                                "max" => [
+                                    "field" => "num_total_connections",
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $resultEs = $this->es->search($paramsEs);
+
+
+        $return = [];
+
+        foreach ($resultEs['aggregations']['topTenDatabaseCon']['buckets'] as $keyDatabase => $valueDatabase) {
+            $return[$keyDatabase]['nam_database'] = $valueDatabase['key'];
+            $return[$keyDatabase]['max_total_connections'] = $valueDatabase['num_total_connections_max']['value'];
+        }
+
+        return $return;
+    }
+
+    public function getDataPostgreSqlTopTenDatabaseConnectionsIpDb(array $params) {
         $this->getConnection();
         $this->db->select("MAX(tdspdi.num_total_connections)", 'max_total_connections', true);
         $this->db->select("tdspdi.des_ip");
@@ -480,7 +609,79 @@ class DataPostgreSql extends AbstractModels {
         return $rsDataPostgreSqlTopTenDatabaseConnectionsIp;
     }
 
-    public function getDataPostgreSqlTopTenDatabaseSize(array $params) {
+    public function getDataPostgreSqlTopTenDatabaseConnectionsIp(array $params) {
+        $this->getConnection();
+
+        $paramsEs = [
+            'index' => 'nocom',
+            'type' => 'tab_data_serv_pgsql_db_ip',
+            'size' => '0',
+            'body' => [
+                'query' => [
+                    "bool" => [
+                        'must' => [
+                            'term' => [
+                                'cod_device' => $params['cod_device'],
+                            ],
+                        ],
+                        'filter' => [
+                            "range" => [
+                                "dte_register" => [
+                                    "gte" => $params['dte_start'],
+                                    "lte" => $params['dte_finish'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                //"sort" => [["dte_register" => ["order" => "desc"]]],
+                "aggs" => [
+                    "topTenDatabaseCon" => [
+                        "terms" => [
+                            "field" => "nam_database",
+                        ],
+                        "aggs" => [
+                            "topTenDatabaseConIp" => [
+                                "terms" => [
+                                    "field" => "des_ip",
+                                    "order" => [
+                                        'num_total_connections_max' => "desc"
+                                    ],
+                                    "size" => 10,
+                                ],
+                                "aggs" => [
+                                    "num_total_connections_max" => [
+                                        "max" => [
+                                            "field" => "num_total_connections",
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $resultEs = $this->es->search($paramsEs);
+
+
+        $return = [];
+
+        $keyDatabases = 0;
+        foreach ($resultEs['aggregations']['topTenDatabaseCon']['buckets'] as $valueDatabase) {
+            foreach ($valueDatabase['topTenDatabaseConIp']['buckets'] as $valueIps) {
+                $return[$keyDatabases]['nam_database'] = $valueDatabase['key'];
+                $return[$keyDatabases]['des_ip'] = $valueIps['key'];
+                $return[$keyDatabases]['max_total_connections'] = $valueIps['num_total_connections_max']['value'];
+                $keyDatabases++;
+            }
+        }
+
+        return $return;
+    }
+
+    public function getDataPostgreSqlTopTenDatabaseSizeDb(array $params) {
         $this->getConnection();
         $this->db->select("max(tdspd.num_database_size)", 'max_database_size', true);
         $this->db->select("tdspd.nam_database");
@@ -499,7 +700,66 @@ class DataPostgreSql extends AbstractModels {
         return $rsDataPostgreSqlTopTenDatabaseSize;
     }
 
-    public function getDataPostgreSqlCommitRollbackInstance(array $params) {
+    public function getDataPostgreSqlTopTenDatabaseSize(array $params) {
+        $this->getConnection();
+
+        $paramsEs = [
+            'index' => 'nocom',
+            'type' => 'tab_data_serv_pgsql_database',
+            'size' => '0',
+            'body' => [
+                'query' => [
+                    "bool" => [
+                        'must' => [
+                            'term' => [
+                                'cod_device' => $params['cod_device'],
+                            ],
+                        ],
+                        'filter' => [
+                            "range" => [
+                                "dte_register" => [
+                                    "gte" => $params['dte_start'],
+                                    "lte" => $params['dte_finish'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                //"sort" => [["dte_register" => ["order" => "desc"]]],
+                "aggs" => [
+                    "topTenDatabaseSize" => [
+                        "terms" => [
+                            "field" => "nam_database",
+                            "order" => [
+                                'num_database_size_max' => "desc"
+                            ],
+                            "size" => 10,
+                        ],
+                        "aggs" => [
+                            "num_database_size_max" => [
+                                "max" => [
+                                    "field" => "num_database_size",
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $resultEs = $this->es->search($paramsEs);
+
+        $return = [];
+
+        foreach ($resultEs['aggregations']['topTenDatabaseSize']['buckets'] as $key => $value) {
+            $return[$key]['nam_database'] = $value['key'];
+            $return[$key]['max_database_size'] = $value['num_database_size_max']['value'];
+        }
+
+        return $return;
+    }
+
+    public function getDataPostgreSqlCommitRollbackInstanceDb(array $params) {
         $this->getConnection();
         $this->db->select("tdspd.dte_register");
         $this->db->select("sum(tdspd.num_commit)", 'sum_commit', true);
@@ -507,6 +767,8 @@ class DataPostgreSql extends AbstractModels {
         $this->db->from('tab_data_serv_pgsql_database', 'tdspd', 'nocomdata');
         $this->db->join('tab_data_serv_pgsql', 'tdsp', 'tdspd.seq_data_serv_pgsql = tdsp.seq_data_serv_pgsql AND tdspd.cod_device = tdsp.cod_device', 'INNERJOIN', 'nocomdata');
         $this->db->where("tdspd.cod_device = '{$params['cod_device']}'");
+        $this->db->where("tdspd.dte_register >= '{$params['dte_start']}'");
+        $this->db->where("tdspd.dte_register < '{$params['dte_finish']}'");
         $this->db->groupBy("1", true);
         $this->db->orderBy("1 DESC", true);
         $this->db->limit(60);
@@ -516,7 +778,74 @@ class DataPostgreSql extends AbstractModels {
         return $rsDataPostgreSqlCommitRollbackInstance;
     }
 
-    public function getDataPostgreSqlCheckPointsLastHour(array $params) {
+    public function getDataPostgreSqlCommitRollbackInstance(array $params) {
+        $this->getConnection();
+        $dateOperations = new \Cityware\Format\DateOperations();
+
+        $paramsEs = [
+            'index' => 'nocom',
+            'type' => 'tab_data_serv_pgsql_database',
+            'size' => '0',
+            'body' => [
+                'query' => [
+                    "bool" => [
+                        'must' => [
+                            'term' => [
+                                'cod_device' => $params['cod_device'],
+                            ],
+                        ],
+                        'filter' => [
+                            "range" => [
+                                "dte_register" => [
+                                    "gte" => $params['dte_start'],
+                                    "lte" => $params['dte_finish'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                "sort" => [["dte_register" => ["order" => "desc"]]],
+                "aggs" => [
+                    "peerMinute" => [
+                        "date_histogram" => [
+                            "field" => "dte_register",
+                            "interval" => "1m",
+                        ],
+                        "aggs" => [
+                            "num_commit_sum" => [
+                                "sum" => [
+                                    "field" => "num_commit",
+                                ],
+                            ],
+                            "num_rollback_sum" => [
+                                "sum" => [
+                                    "field" => "num_rollback",
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $resultEs = $this->es->search($paramsEs);
+
+        $return = [];
+
+        foreach ($resultEs['aggregations']['peerMinute']['buckets'] as $key => $value) {
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('i');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['dte_register'] = $value['key_as_string'];
+            $return[$keyDate]['sum_commit'] = $value['num_commit_sum']['value'];
+            $return[$keyDate]['sum_rollback'] = $value['num_rollback_sum']['value'];
+        }
+
+        return $return;
+    }
+
+    public function getDataPostgreSqlCheckPointsLastHourDb(array $params) {
         $this->getConnection();
         $queryCheckPoints = "
             SELECT tdsp.cod_device,
@@ -544,7 +873,97 @@ class DataPostgreSql extends AbstractModels {
         return $rsDataPostgreSqlCheckPointsLastHour;
     }
 
-    public function getDataPostgreSqlLastHour(array $params) {
+    public function getDataPostgreSqlCheckPointsLastHour(array $params) {
+        $this->getConnection();
+
+        $paramsEs = [
+            'index' => 'nocom',
+            'type' => 'tab_data_serv_pgsql',
+            'size' => '0',
+            'body' => [
+                'query' => [
+                    "bool" => [
+                        'must' => [
+                            'term' => [
+                                'cod_device' => $params['cod_device'],
+                            ],
+                        ],
+                        'filter' => [
+                            "range" => [
+                                "dte_register" => [
+                                    "gte" => $params['dte_start'],
+                                    "lte" => $params['dte_finish'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                "sort" => [["dte_register" => ["order" => "desc"]]],
+                "aggs" => [
+                    "peerMinute" => [
+                        "date_histogram" => [
+                            "field" => "dte_register",
+                            "interval" => "1m",
+                        ],
+                        "aggs" => [
+                            "num_total_checkpoints_req_max" => [
+                                "max" => [
+                                    "field" => "num_total_checkpoints_req",
+                                ],
+                            ],
+                            "num_total_checkpoints_timed_max" => [
+                                "max" => [
+                                    "field" => "num_total_checkpoints_timed",
+                                ],
+                            ],
+                            "num_total_checkpoints_max" => [
+                                "max" => [
+                                    "field" => "num_total_checkpoints",
+                                ],
+                            ],
+                            "diference_req" => [
+                                "serial_diff" => [
+                                    "buckets_path" => "num_total_checkpoints_req_max",
+                                    "lag" => 1,
+                                ],
+                            ],
+                            "diference_timed" => [
+                                "serial_diff" => [
+                                    "buckets_path" => "num_total_checkpoints_timed_max",
+                                    "lag" => 1,
+                                ],
+                            ],
+                            "diference_total" => [
+                                "serial_diff" => [
+                                    "buckets_path" => "num_total_checkpoints_max",
+                                    "lag" => 1,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $resultEs = $this->es->search($paramsEs);
+
+        $return = [];
+
+        foreach ($resultEs['aggregations']['peerMinute']['buckets'] as $key => $value) {
+
+            if (isset($value['diference_total']['value'])) {
+                $keyIndex = $key - 1;
+                $return[$keyIndex]['dte_register'] = $value['key_as_string'];
+                $return[$keyIndex]['diference_req'] = $value['diference_req']['value'];
+                $return[$keyIndex]['diference_timed'] = $value['diference_timed']['value'];
+                $return[$keyIndex]['diference_total'] = $value['diference_total']['value'];
+            }
+        }
+
+        return $return;
+    }
+
+    public function getDataPostgreSqlLastHourDb(array $params) {
         $this->getConnection();
 
         $this->db->select("tdsp.num_total_checkpoints");
@@ -567,12 +986,56 @@ class DataPostgreSql extends AbstractModels {
         $this->db->select("tdsp.dte_register");
         $this->db->from('tab_data_serv_pgsql', 'tdsp', 'nocomdata');
         $this->db->where("tdsp.cod_device = '{$params['cod_device']}'");
+        $this->db->where("tdsp.dte_register >= '{$params['dte_start']}'");
+        $this->db->where("tdsp.dte_register < '{$params['dte_finish']}'");
         $this->db->orderBy("tdsp.seq_data_serv_pgsql DESC");
         $this->db->limit(60);
         $this->db->setDebug(false);
         $rsDataPostgreSqlLastHour = $this->db->executeSelectQuery();
 
         return $rsDataPostgreSqlLastHour;
+    }
+
+    public function getDataPostgreSqlLastHour(array $params) {
+        $this->getConnection();
+
+        $paramsEs = [
+            'index' => 'nocom',
+            'type' => 'tab_data_serv_pgsql',
+            'size' => '60',
+            'body' => [
+                'query' => [
+                    "bool" => [
+                        'must' => [
+                            'term' => [
+                                'cod_device' => $params['cod_device'],
+                            ],
+                        ],
+                        'filter' => [
+                            "range" => [
+                                "dte_register" => [
+                                    "gte" => $params['dte_start'],
+                                    "lte" => $params['dte_finish'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                "sort" => [["dte_register" => ["order" => "desc"]]],
+            ],
+        ];
+
+        $resultEs = $this->es->search($paramsEs);
+
+        $return = [];
+
+        foreach ($resultEs['hits']['hits'] as $keyHits => $valueHits) {
+            foreach ($valueHits['_source'] as $keySource => $valueSource) {
+                $return[$keyHits][$keySource] = $valueSource;
+            }
+        }
+
+        return $return;
     }
 
     public function getDataPostgreSqlCurrentHour(array $params) {

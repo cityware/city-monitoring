@@ -263,7 +263,7 @@ class DataNetwork extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" =>["order" => "desc"]]],
+                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -272,7 +272,7 @@ class DataNetwork extends AbstractModels {
                         ],
                         "aggs" => [
                             "num_out_bit_rate_avg" => [
-                                "sum" => [
+                                "avg" => [
                                     "field" => "num_out_bit_rate"
                                 ],
                             ],
@@ -292,6 +292,7 @@ class DataNetwork extends AbstractModels {
         $return = [];
 
         foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
+
             $return[$key]['slot'] = $key;
             $return[$key]['key'] = $value['key_as_string'];
             $return[$key]['num_in_bit_rate'] = $value['num_in_bit_rate_avg']['value'];
@@ -328,6 +329,7 @@ class DataNetwork extends AbstractModels {
 
     public function getDataNetworkCurrentDay(array $params) {
         $this->getConnection();
+        $dateOperations = new \Cityware\Format\DateOperations();
 
         $paramsEs = [
             'index' => 'nocom',
@@ -351,7 +353,7 @@ class DataNetwork extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" =>["order" => "desc"]]],
+                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -360,7 +362,7 @@ class DataNetwork extends AbstractModels {
                         ],
                         "aggs" => [
                             "num_out_bit_rate_avg" => [
-                                "sum" => [
+                                "avg" => [
                                     "field" => "num_out_bit_rate"
                                 ],
                             ],
@@ -380,10 +382,13 @@ class DataNetwork extends AbstractModels {
         $return = [];
 
         foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
-            $return[$key]['slot'] = $key;
-            $return[$key]['key'] = $value['key_as_string'];
-            $return[$key]['num_in_bit_rate'] = $value['num_in_bit_rate_avg']['value'];
-            $return[$key]['num_out_bit_rate'] = $value['num_out_bit_rate_avg']['value'];
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('H');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['key'] = $value['key_as_string'];
+            $return[$keyDate]['num_in_bit_rate'] = $value['num_in_bit_rate_avg']['value'];
+            $return[$keyDate]['num_out_bit_rate'] = $value['num_out_bit_rate_avg']['value'];
         }
 
         return $return;
@@ -416,6 +421,7 @@ class DataNetwork extends AbstractModels {
 
     public function getDataNetworkCurrentMonth(array $params) {
         $this->getConnection();
+        $dateOperations = new \Cityware\Format\DateOperations();
 
         $paramsEs = [
             'index' => 'nocom',
@@ -439,7 +445,7 @@ class DataNetwork extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" =>["order" => "desc"]]],
+                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -448,7 +454,7 @@ class DataNetwork extends AbstractModels {
                         ],
                         "aggs" => [
                             "num_out_bit_rate_avg" => [
-                                "sum" => [
+                                "avg" => [
                                     "field" => "num_out_bit_rate"
                                 ],
                             ],
@@ -468,10 +474,13 @@ class DataNetwork extends AbstractModels {
         $return = [];
 
         foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
-            $return[$key]['slot'] = $key;
-            $return[$key]['key'] = $value['key_as_string'];
-            $return[$key]['num_in_bit_rate'] = $value['num_in_bit_rate_avg']['value'];
-            $return[$key]['num_out_bit_rate'] = $value['num_out_bit_rate_avg']['value'];
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('d');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['key'] = $value['key_as_string'];
+            $return[$keyDate]['num_in_bit_rate'] = $value['num_in_bit_rate_avg']['value'];
+            $return[$keyDate]['num_out_bit_rate'] = $value['num_out_bit_rate_avg']['value'];
         }
 
         return $return;
@@ -504,6 +513,7 @@ class DataNetwork extends AbstractModels {
 
     public function getDataNetworkCurrentYear(array $params) {
         $this->getConnection();
+        $dateOperations = new \Cityware\Format\DateOperations();
 
         $paramsEs = [
             'index' => 'nocom',
@@ -527,7 +537,7 @@ class DataNetwork extends AbstractModels {
                         ],
                     ],
                 ],
-                "sort" => [["dte_register" =>["order" => "desc"]]],
+                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -536,7 +546,7 @@ class DataNetwork extends AbstractModels {
                         ],
                         "aggs" => [
                             "num_out_bit_rate_avg" => [
-                                "sum" => [
+                                "avg" => [
                                     "field" => "num_out_bit_rate"
                                 ],
                             ],
@@ -556,10 +566,13 @@ class DataNetwork extends AbstractModels {
         $return = [];
 
         foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
-            $return[$key]['slot'] = $key;
-            $return[$key]['key'] = $value['key_as_string'];
-            $return[$key]['num_in_bit_rate'] = $value['num_in_bit_rate_avg']['value'];
-            $return[$key]['num_out_bit_rate'] = $value['num_out_bit_rate_avg']['value'];
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('m');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['key'] = $value['key_as_string'];
+            $return[$keyDate]['num_in_bit_rate'] = $value['num_in_bit_rate_avg']['value'];
+            $return[$keyDate]['num_out_bit_rate'] = $value['num_out_bit_rate_avg']['value'];
         }
 
         return $return;
