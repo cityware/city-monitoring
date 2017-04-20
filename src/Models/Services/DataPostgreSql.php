@@ -1038,27 +1038,26 @@ class DataPostgreSql extends AbstractModels {
         return $return;
     }
 
-    public function getDataPostgreSqlCurrentHour(array $params) {
+    public function getDataPostgreSqlCurrentHourDb(array $params) {
         $this->getConnection();
 
         $this->db->select("trunc(EXTRACT(MINUTE from dte_register) / 5)", 'slot', true);
         $this->db->select("sum(tdsp.num_total_checkpoints)", 'num_total_checkpoints', true);
-
         $this->db->select("sum(tdsp.num_total_checkpoints_req)", 'num_total_checkpoints_req', true);
         $this->db->select("sum(tdsp.num_total_checkpoints_timed)", 'num_total_checkpoints_timed', true);
-
         $this->db->select("avg(tdsp.num_sec_between_checkpoints)", 'num_sec_between_checkpoints', true);
         $this->db->select("avg(tdsp.num_checkpoint_req_timed_ratio)", 'num_checkpoint_req_timed_ratio', true);
         $this->db->select("sum(tdsp.num_total_connections)", 'num_total_connections', true);
         $this->db->select("sum(tdsp.num_max_connections)", 'num_max_connections', true);
-        $this->db->select("avg(tdsp.num_connection_ratio)", 'num_connection_ratio', true);
 
+        $this->db->select("avg(tdsp.num_connection_ratio)", 'num_connection_ratio', true);
         $this->db->select("avg(tdsp.num_max_locks_per_transaction)", 'num_max_locks_per_transaction', true);
 
         $this->db->select("sum(tdsp.num_access_share_lock)", 'num_access_share_lock', true);
         $this->db->select("sum(tdsp.num_row_share_lock)", 'num_row_share_lock', true);
         $this->db->select("sum(tdsp.num_row_exclusive_lock)", 'num_row_exclusive_lock', true);
         $this->db->select("sum(tdsp.num_share_update_exclusive_lock)", 'num_share_update_exclusive_lock', true);
+
         $this->db->select("sum(tdsp.num_share_lock)", 'num_share_lock', true);
         $this->db->select("sum(tdsp.num_share_row_exclusive_lock)", 'num_share_row_exclusive_lock', true);
         $this->db->select("sum(tdsp.num_exclusive_lock)", 'num_exclusive_lock', true);
@@ -1082,7 +1081,160 @@ class DataPostgreSql extends AbstractModels {
         return $return;
     }
 
-    public function getDataPostgreSqlCurrentDay(array $params) {
+    public function getDataPostgreSqlCurrentHour(array $params) {
+        $this->getConnection();
+
+        $paramsEs = [
+            'index' => 'nocom',
+            'type' => 'tab_data_serv_pgsql',
+            'size' => '0',
+            'body' => [
+                'query' => [
+                    "bool" => [
+                        'must' => [
+                            'term' => [
+                                'cod_device' => $params['cod_device'],
+                            ],
+                        ],
+                        'filter' => [
+                            "range" => [
+                                "dte_register" => [
+                                    "gte" => $params['dte_start'],
+                                    "lte" => $params['dte_finish'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                "aggs" => [
+                    "peer5Minutes" => [
+                        "date_histogram" => [
+                            "field" => "dte_register",
+                            "interval" => "5m"
+                        ],
+                        "aggs" => [
+                            "num_total_checkpoints_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_checkpoints"
+                                ],
+                            ],
+                            "num_total_checkpoints_req_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_checkpoints_req"
+                                ],
+                            ],
+                            "num_total_checkpoints_timed_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_checkpoints_timed"
+                                ],
+                            ],
+                            "num_sec_between_checkpoints_avg" => [
+                                "avg" => [
+                                    "field" => "num_sec_between_checkpoints"
+                                ],
+                            ],
+                            "num_checkpoint_req_timed_ratio_avg" => [
+                                "avg" => [
+                                    "field" => "num_checkpoint_req_timed_ratio"
+                                ],
+                            ],
+                            "num_total_connections_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_connections"
+                                ],
+                            ],
+                            "num_max_connections_sum" => [
+                                "sum" => [
+                                    "field" => "num_max_connections"
+                                ],
+                            ],
+                            "num_connection_ratio_avg" => [
+                                "avg" => [
+                                    "field" => "num_connection_ratio"
+                                ],
+                            ],
+                            "num_max_locks_per_transaction_avg" => [
+                                "avg" => [
+                                    "field" => "num_max_locks_per_transaction"
+                                ],
+                            ],
+                            "num_access_share_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_access_share_lock"
+                                ],
+                            ],
+                            "num_row_share_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_row_share_lock"
+                                ],
+                            ],
+                            "num_row_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_row_exclusive_lock"
+                                ],
+                            ],
+                            "num_share_update_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_share_update_exclusive_lock"
+                                ],
+                            ],
+                            "num_share_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_share_lock"
+                                ],
+                            ],
+                            "num_share_row_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_share_row_exclusive_lock"
+                                ],
+                            ],
+                            "num_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_exclusive_lock"
+                                ],
+                            ],
+                            "num_access_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_access_exclusive_lock"
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+
+        $resultEs = $this->es->search($paramsEs);
+
+        $return = [];
+
+        foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
+            $return[$key]['slot'] = $key;
+            $return[$key]['key'] = $value['key_as_string'];
+            $return[$key]['num_total_checkpoints'] = $value['num_total_checkpoints_sum']['value'];
+            $return[$key]['num_total_checkpoints_req'] = $value['num_total_checkpoints_req_sum']['value'];
+            $return[$key]['num_total_checkpoints_timed'] = $value['num_total_checkpoints_timed_sum']['value'];
+            $return[$key]['num_sec_between_checkpoints'] = $value['num_sec_between_checkpoints_avg']['value'];
+            $return[$key]['num_checkpoint_req_timed_ratio'] = $value['num_checkpoint_req_timed_ratio_avg']['value'];
+            $return[$key]['num_total_connections'] = $value['num_total_connections_sum']['value'];
+            $return[$key]['num_max_connections'] = $value['num_max_connections_sum']['value'];
+            $return[$key]['num_connection_ratio'] = $value['num_connection_ratio_avg']['value'];
+            $return[$key]['num_max_locks_per_transaction'] = $value['num_max_locks_per_transaction_avg']['value'];
+            $return[$key]['num_access_share_lock'] = $value['num_access_share_lock_sum']['value'];
+            $return[$key]['num_row_share_lock'] = $value['num_row_share_lock_sum']['value'];
+            $return[$key]['num_row_exclusive_lock'] = $value['num_row_exclusive_lock_sum']['value'];
+            $return[$key]['num_share_update_exclusive_lock'] = $value['num_share_update_exclusive_lock_sum']['value'];
+            $return[$key]['num_share_lock'] = $value['num_share_lock_sum']['value'];
+            $return[$key]['num_share_row_exclusive_lock'] = $value['num_share_row_exclusive_lock_sum']['value'];
+            $return[$key]['num_exclusive_lock'] = $value['num_exclusive_lock_sum']['value'];
+            $return[$key]['num_access_exclusive_lock'] = $value['num_access_exclusive_lock_sum']['value'];
+        }
+
+        return $return;
+    }
+
+    public function getDataPostgreSqlCurrentDayDb(array $params) {
         $this->getConnection();
 
         $this->db->select("trunc(EXTRACT(HOUR from dte_register) / 1)", 'slot', true);
@@ -1126,7 +1278,164 @@ class DataPostgreSql extends AbstractModels {
         return $return;
     }
 
-    public function getDataPostgreSqlCurrentMonth(array $params) {
+    public function getDataPostgreSqlCurrentDay(array $params) {
+        $this->getConnection();
+        $dateOperations = new \Cityware\Format\DateOperations();
+
+        $paramsEs = [
+            'index' => 'nocom',
+            'type' => 'tab_data_serv_pgsql',
+            'size' => '0',
+            'body' => [
+                'query' => [
+                    "bool" => [
+                        'must' => [
+                            'term' => [
+                                'cod_device' => $params['cod_device'],
+                            ],
+                        ],
+                        'filter' => [
+                            "range" => [
+                                "dte_register" => [
+                                    "gte" => $params['dte_start'],
+                                    "lte" => $params['dte_finish'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                "aggs" => [
+                    "peer5Minutes" => [
+                        "date_histogram" => [
+                            "field" => "dte_register",
+                            "interval" => "hour"
+                        ],
+                        "aggs" => [
+                            "num_total_checkpoints_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_checkpoints"
+                                ],
+                            ],
+                            "num_total_checkpoints_req_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_checkpoints_req"
+                                ],
+                            ],
+                            "num_total_checkpoints_timed_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_checkpoints_timed"
+                                ],
+                            ],
+                            "num_sec_between_checkpoints_avg" => [
+                                "avg" => [
+                                    "field" => "num_sec_between_checkpoints"
+                                ],
+                            ],
+                            "num_checkpoint_req_timed_ratio_avg" => [
+                                "avg" => [
+                                    "field" => "num_checkpoint_req_timed_ratio"
+                                ],
+                            ],
+                            "num_total_connections_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_connections"
+                                ],
+                            ],
+                            "num_max_connections_sum" => [
+                                "sum" => [
+                                    "field" => "num_max_connections"
+                                ],
+                            ],
+                            "num_connection_ratio_avg" => [
+                                "avg" => [
+                                    "field" => "num_connection_ratio"
+                                ],
+                            ],
+                            "num_max_locks_per_transaction_avg" => [
+                                "avg" => [
+                                    "field" => "num_max_locks_per_transaction"
+                                ],
+                            ],
+                            "num_access_share_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_access_share_lock"
+                                ],
+                            ],
+                            "num_row_share_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_row_share_lock"
+                                ],
+                            ],
+                            "num_row_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_row_exclusive_lock"
+                                ],
+                            ],
+                            "num_share_update_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_share_update_exclusive_lock"
+                                ],
+                            ],
+                            "num_share_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_share_lock"
+                                ],
+                            ],
+                            "num_share_row_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_share_row_exclusive_lock"
+                                ],
+                            ],
+                            "num_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_exclusive_lock"
+                                ],
+                            ],
+                            "num_access_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_access_exclusive_lock"
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+
+        $resultEs = $this->es->search($paramsEs);
+
+        $return = [];
+
+        foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('H');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['key'] = $value['key_as_string'];
+            $return[$keyDate]['num_total_checkpoints'] = $value['num_total_checkpoints_sum']['value'];
+            $return[$keyDate]['num_total_checkpoints_req'] = $value['num_total_checkpoints_req_sum']['value'];
+            $return[$keyDate]['num_total_checkpoints_timed'] = $value['num_total_checkpoints_timed_sum']['value'];
+            $return[$keyDate]['num_sec_between_checkpoints'] = $value['num_sec_between_checkpoints_avg']['value'];
+            $return[$keyDate]['num_checkpoint_req_timed_ratio'] = $value['num_checkpoint_req_timed_ratio_avg']['value'];
+            $return[$keyDate]['num_total_connections'] = $value['num_total_connections_sum']['value'];
+            $return[$keyDate]['num_max_connections'] = $value['num_max_connections_sum']['value'];
+            $return[$keyDate]['num_connection_ratio'] = $value['num_connection_ratio_avg']['value'];
+            $return[$keyDate]['num_max_locks_per_transaction'] = $value['num_max_locks_per_transaction_avg']['value'];
+            $return[$keyDate]['num_access_share_lock'] = $value['num_access_share_lock_sum']['value'];
+            $return[$keyDate]['num_row_share_lock'] = $value['num_row_share_lock_sum']['value'];
+            $return[$keyDate]['num_row_exclusive_lock'] = $value['num_row_exclusive_lock_sum']['value'];
+            $return[$keyDate]['num_share_update_exclusive_lock'] = $value['num_share_update_exclusive_lock_sum']['value'];
+            $return[$keyDate]['num_share_lock'] = $value['num_share_lock_sum']['value'];
+            $return[$keyDate]['num_share_row_exclusive_lock'] = $value['num_share_row_exclusive_lock_sum']['value'];
+            $return[$keyDate]['num_exclusive_lock'] = $value['num_exclusive_lock_sum']['value'];
+            $return[$keyDate]['num_access_exclusive_lock'] = $value['num_access_exclusive_lock_sum']['value'];
+        }
+
+        return $return;
+    }
+
+    public function getDataPostgreSqlCurrentMonthDb(array $params) {
         $this->getConnection();
 
         $this->db->select("trunc(EXTRACT(DAY from dte_register) / 1)", 'slot', true);
@@ -1170,7 +1479,164 @@ class DataPostgreSql extends AbstractModels {
         return $return;
     }
 
-    public function getDataPostgreSqlCurrentYear(array $params) {
+    public function getDataPostgreSqlCurrentMonth(array $params) {
+        $this->getConnection();
+        $dateOperations = new \Cityware\Format\DateOperations();
+
+        $paramsEs = [
+            'index' => 'nocom',
+            'type' => 'tab_data_serv_pgsql',
+            'size' => '0',
+            'body' => [
+                'query' => [
+                    "bool" => [
+                        'must' => [
+                            'term' => [
+                                'cod_device' => $params['cod_device'],
+                            ],
+                        ],
+                        'filter' => [
+                            "range" => [
+                                "dte_register" => [
+                                    "gte" => $params['dte_start'],
+                                    "lte" => $params['dte_finish'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                "aggs" => [
+                    "peer5Minutes" => [
+                        "date_histogram" => [
+                            "field" => "dte_register",
+                            "interval" => "day"
+                        ],
+                        "aggs" => [
+                            "num_total_checkpoints_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_checkpoints"
+                                ],
+                            ],
+                            "num_total_checkpoints_req_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_checkpoints_req"
+                                ],
+                            ],
+                            "num_total_checkpoints_timed_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_checkpoints_timed"
+                                ],
+                            ],
+                            "num_sec_between_checkpoints_avg" => [
+                                "avg" => [
+                                    "field" => "num_sec_between_checkpoints"
+                                ],
+                            ],
+                            "num_checkpoint_req_timed_ratio_avg" => [
+                                "avg" => [
+                                    "field" => "num_checkpoint_req_timed_ratio"
+                                ],
+                            ],
+                            "num_total_connections_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_connections"
+                                ],
+                            ],
+                            "num_max_connections_sum" => [
+                                "sum" => [
+                                    "field" => "num_max_connections"
+                                ],
+                            ],
+                            "num_connection_ratio_avg" => [
+                                "avg" => [
+                                    "field" => "num_connection_ratio"
+                                ],
+                            ],
+                            "num_max_locks_per_transaction_avg" => [
+                                "avg" => [
+                                    "field" => "num_max_locks_per_transaction"
+                                ],
+                            ],
+                            "num_access_share_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_access_share_lock"
+                                ],
+                            ],
+                            "num_row_share_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_row_share_lock"
+                                ],
+                            ],
+                            "num_row_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_row_exclusive_lock"
+                                ],
+                            ],
+                            "num_share_update_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_share_update_exclusive_lock"
+                                ],
+                            ],
+                            "num_share_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_share_lock"
+                                ],
+                            ],
+                            "num_share_row_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_share_row_exclusive_lock"
+                                ],
+                            ],
+                            "num_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_exclusive_lock"
+                                ],
+                            ],
+                            "num_access_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_access_exclusive_lock"
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+
+        $resultEs = $this->es->search($paramsEs);
+
+        $return = [];
+
+        foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('d');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['key'] = $value['key_as_string'];
+            $return[$keyDate]['num_total_checkpoints'] = $value['num_total_checkpoints_sum']['value'];
+            $return[$keyDate]['num_total_checkpoints_req'] = $value['num_total_checkpoints_req_sum']['value'];
+            $return[$keyDate]['num_total_checkpoints_timed'] = $value['num_total_checkpoints_timed_sum']['value'];
+            $return[$keyDate]['num_sec_between_checkpoints'] = $value['num_sec_between_checkpoints_avg']['value'];
+            $return[$keyDate]['num_checkpoint_req_timed_ratio'] = $value['num_checkpoint_req_timed_ratio_avg']['value'];
+            $return[$keyDate]['num_total_connections'] = $value['num_total_connections_sum']['value'];
+            $return[$keyDate]['num_max_connections'] = $value['num_max_connections_sum']['value'];
+            $return[$keyDate]['num_connection_ratio'] = $value['num_connection_ratio_avg']['value'];
+            $return[$keyDate]['num_max_locks_per_transaction'] = $value['num_max_locks_per_transaction_avg']['value'];
+            $return[$keyDate]['num_access_share_lock'] = $value['num_access_share_lock_sum']['value'];
+            $return[$keyDate]['num_row_share_lock'] = $value['num_row_share_lock_sum']['value'];
+            $return[$keyDate]['num_row_exclusive_lock'] = $value['num_row_exclusive_lock_sum']['value'];
+            $return[$keyDate]['num_share_update_exclusive_lock'] = $value['num_share_update_exclusive_lock_sum']['value'];
+            $return[$keyDate]['num_share_lock'] = $value['num_share_lock_sum']['value'];
+            $return[$keyDate]['num_share_row_exclusive_lock'] = $value['num_share_row_exclusive_lock_sum']['value'];
+            $return[$keyDate]['num_exclusive_lock'] = $value['num_exclusive_lock_sum']['value'];
+            $return[$keyDate]['num_access_exclusive_lock'] = $value['num_access_exclusive_lock_sum']['value'];
+        }
+
+        return $return;
+    }
+
+    public function getDataPostgreSqlCurrentYearDb(array $params) {
         $this->getConnection();
 
         $this->db->select("trunc(EXTRACT(MONTH from dte_register) / 1)", 'slot', true);
@@ -1209,6 +1675,163 @@ class DataPostgreSql extends AbstractModels {
 
         foreach ($rsDataCpuLoadLastYear as $value) {
             $return[$value['slot']] = $value;
+        }
+
+        return $return;
+    }
+
+    public function getDataPostgreSqlCurrentYear(array $params) {
+        $this->getConnection();
+        $dateOperations = new \Cityware\Format\DateOperations();
+
+        $paramsEs = [
+            'index' => 'nocom',
+            'type' => 'tab_data_serv_pgsql',
+            'size' => '0',
+            'body' => [
+                'query' => [
+                    "bool" => [
+                        'must' => [
+                            'term' => [
+                                'cod_device' => $params['cod_device'],
+                            ],
+                        ],
+                        'filter' => [
+                            "range" => [
+                                "dte_register" => [
+                                    "gte" => $params['dte_start'],
+                                    "lte" => $params['dte_finish'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                "aggs" => [
+                    "peer5Minutes" => [
+                        "date_histogram" => [
+                            "field" => "dte_register",
+                            "interval" => "month"
+                        ],
+                        "aggs" => [
+                            "num_total_checkpoints_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_checkpoints"
+                                ],
+                            ],
+                            "num_total_checkpoints_req_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_checkpoints_req"
+                                ],
+                            ],
+                            "num_total_checkpoints_timed_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_checkpoints_timed"
+                                ],
+                            ],
+                            "num_sec_between_checkpoints_avg" => [
+                                "avg" => [
+                                    "field" => "num_sec_between_checkpoints"
+                                ],
+                            ],
+                            "num_checkpoint_req_timed_ratio_avg" => [
+                                "avg" => [
+                                    "field" => "num_checkpoint_req_timed_ratio"
+                                ],
+                            ],
+                            "num_total_connections_sum" => [
+                                "sum" => [
+                                    "field" => "num_total_connections"
+                                ],
+                            ],
+                            "num_max_connections_sum" => [
+                                "sum" => [
+                                    "field" => "num_max_connections"
+                                ],
+                            ],
+                            "num_connection_ratio_avg" => [
+                                "avg" => [
+                                    "field" => "num_connection_ratio"
+                                ],
+                            ],
+                            "num_max_locks_per_transaction_avg" => [
+                                "avg" => [
+                                    "field" => "num_max_locks_per_transaction"
+                                ],
+                            ],
+                            "num_access_share_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_access_share_lock"
+                                ],
+                            ],
+                            "num_row_share_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_row_share_lock"
+                                ],
+                            ],
+                            "num_row_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_row_exclusive_lock"
+                                ],
+                            ],
+                            "num_share_update_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_share_update_exclusive_lock"
+                                ],
+                            ],
+                            "num_share_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_share_lock"
+                                ],
+                            ],
+                            "num_share_row_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_share_row_exclusive_lock"
+                                ],
+                            ],
+                            "num_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_exclusive_lock"
+                                ],
+                            ],
+                            "num_access_exclusive_lock_sum" => [
+                                "sum" => [
+                                    "field" => "num_access_exclusive_lock"
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+
+        $resultEs = $this->es->search($paramsEs);
+
+        $return = [];
+
+        foreach ($resultEs['aggregations']['peer5Minutes']['buckets'] as $key => $value) {
+
+            $keyDate = (int) $dateOperations->setDateTime($value['key_as_string'])->format('m');
+
+            $return[$keyDate]['slot'] = $keyDate;
+            $return[$keyDate]['key'] = $value['key_as_string'];
+            $return[$keyDate]['num_total_checkpoints'] = $value['num_total_checkpoints_sum']['value'];
+            $return[$keyDate]['num_total_checkpoints_req'] = $value['num_total_checkpoints_req_sum']['value'];
+            $return[$keyDate]['num_total_checkpoints_timed'] = $value['num_total_checkpoints_timed_sum']['value'];
+            $return[$keyDate]['num_sec_between_checkpoints'] = $value['num_sec_between_checkpoints_avg']['value'];
+            $return[$keyDate]['num_checkpoint_req_timed_ratio'] = $value['num_checkpoint_req_timed_ratio_avg']['value'];
+            $return[$keyDate]['num_total_connections'] = $value['num_total_connections_sum']['value'];
+            $return[$keyDate]['num_max_connections'] = $value['num_max_connections_sum']['value'];
+            $return[$keyDate]['num_connection_ratio'] = $value['num_connection_ratio_avg']['value'];
+            $return[$keyDate]['num_max_locks_per_transaction'] = $value['num_max_locks_per_transaction_avg']['value'];
+            $return[$keyDate]['num_access_share_lock'] = $value['num_access_share_lock_sum']['value'];
+            $return[$keyDate]['num_row_share_lock'] = $value['num_row_share_lock_sum']['value'];
+            $return[$keyDate]['num_row_exclusive_lock'] = $value['num_row_exclusive_lock_sum']['value'];
+            $return[$keyDate]['num_share_update_exclusive_lock'] = $value['num_share_update_exclusive_lock_sum']['value'];
+            $return[$keyDate]['num_share_lock'] = $value['num_share_lock_sum']['value'];
+            $return[$keyDate]['num_share_row_exclusive_lock'] = $value['num_share_row_exclusive_lock_sum']['value'];
+            $return[$keyDate]['num_exclusive_lock'] = $value['num_exclusive_lock_sum']['value'];
+            $return[$keyDate]['num_access_exclusive_lock'] = $value['num_access_exclusive_lock_sum']['value'];
         }
 
         return $return;
