@@ -248,12 +248,12 @@ class DataNetwork extends AbstractModels {
             'body' => [
                 'query' => [
                     "bool" => [
-                        'must' => [
+                        'filter' => [
                             'term' => [
                                 'cod_device' => $params['cod_device'],
                             ],
                         ],
-                        'filter' => [
+                        'must' => [
                             "range" => [
                                 "dte_register" => [
                                     "gte" => $params['dte_start'],
@@ -263,7 +263,6 @@ class DataNetwork extends AbstractModels {
                         ],
                     ],
                 ],
-                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -338,12 +337,12 @@ class DataNetwork extends AbstractModels {
             'body' => [
                 'query' => [
                     "bool" => [
-                        'must' => [
+                        'filter' => [
                             'term' => [
                                 'cod_device' => $params['cod_device'],
                             ],
                         ],
-                        'filter' => [
+                        'must' => [
                             "range" => [
                                 "dte_register" => [
                                     "gte" => $params['dte_start'],
@@ -353,7 +352,6 @@ class DataNetwork extends AbstractModels {
                         ],
                     ],
                 ],
-                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -430,12 +428,12 @@ class DataNetwork extends AbstractModels {
             'body' => [
                 'query' => [
                     "bool" => [
-                        'must' => [
+                        'filter' => [
                             'term' => [
                                 'cod_device' => $params['cod_device'],
                             ],
                         ],
-                        'filter' => [
+                        'must' => [
                             "range" => [
                                 "dte_register" => [
                                     "gte" => $params['dte_start'],
@@ -445,7 +443,6 @@ class DataNetwork extends AbstractModels {
                         ],
                     ],
                 ],
-                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [
@@ -522,12 +519,12 @@ class DataNetwork extends AbstractModels {
             'body' => [
                 'query' => [
                     "bool" => [
-                        'must' => [
+                        'filter' => [
                             'term' => [
                                 'cod_device' => $params['cod_device'],
                             ],
                         ],
-                        'filter' => [
+                        'must' => [
                             "range" => [
                                 "dte_register" => [
                                     "gte" => $params['dte_start'],
@@ -537,7 +534,6 @@ class DataNetwork extends AbstractModels {
                         ],
                     ],
                 ],
-                //"sort" => [["dte_register" =>["order" => "desc"]]],
                 "aggs" => [
                     "peer5Minutes" => [
                         "date_histogram" => [

@@ -115,9 +115,6 @@ class DataPostgreSql extends AbstractModels {
 
             $paramsInsert['body'] = array_merge($paramsInsert['body'], $params);
 
-            echo '<pre>';
-            print_r($paramsInsert);
-
             $ret = $this->es->index($paramsInsert);
 
             return $id['0']['nextval'];
@@ -466,7 +463,7 @@ class DataPostgreSql extends AbstractModels {
                     "database" => [
                         "terms" => [
                             "field" => "nam_database",
-                            "size" => 1000,
+                            "size" => 2147483647,
                         ],
                         "aggs" => [
                             "hash" => [
@@ -481,6 +478,7 @@ class DataPostgreSql extends AbstractModels {
         ];
 
         $resultEs = $this->es->search($paramsEs);
+
 
         $return = [];
 
@@ -538,12 +536,12 @@ class DataPostgreSql extends AbstractModels {
             'body' => [
                 'query' => [
                     "bool" => [
-                        'must' => [
+                        'filter' => [
                             'term' => [
                                 'cod_device' => $params['cod_device'],
                             ],
                         ],
-                        'filter' => [
+                        'must' => [
                             "range" => [
                                 "dte_register" => [
                                     "gte" => $params['dte_start'],
@@ -553,7 +551,6 @@ class DataPostgreSql extends AbstractModels {
                         ],
                     ],
                 ],
-                //"sort" => [["dte_register" => ["order" => "desc"]]],
                 "aggs" => [
                     "topTenDatabaseCon" => [
                         "terms" => [
@@ -576,7 +573,6 @@ class DataPostgreSql extends AbstractModels {
         ];
 
         $resultEs = $this->es->search($paramsEs);
-
 
         $return = [];
 
@@ -619,12 +615,12 @@ class DataPostgreSql extends AbstractModels {
             'body' => [
                 'query' => [
                     "bool" => [
-                        'must' => [
+                        'filter' => [
                             'term' => [
                                 'cod_device' => $params['cod_device'],
                             ],
                         ],
-                        'filter' => [
+                        'must' => [
                             "range" => [
                                 "dte_register" => [
                                     "gte" => $params['dte_start'],
@@ -634,7 +630,6 @@ class DataPostgreSql extends AbstractModels {
                         ],
                     ],
                 ],
-                //"sort" => [["dte_register" => ["order" => "desc"]]],
                 "aggs" => [
                     "topTenDatabaseCon" => [
                         "terms" => [
@@ -664,7 +659,6 @@ class DataPostgreSql extends AbstractModels {
         ];
 
         $resultEs = $this->es->search($paramsEs);
-
 
         $return = [];
 
@@ -710,12 +704,12 @@ class DataPostgreSql extends AbstractModels {
             'body' => [
                 'query' => [
                     "bool" => [
-                        'must' => [
+                        'filter' => [
                             'term' => [
                                 'cod_device' => $params['cod_device'],
                             ],
                         ],
-                        'filter' => [
+                        'must' => [
                             "range" => [
                                 "dte_register" => [
                                     "gte" => $params['dte_start'],
@@ -725,7 +719,6 @@ class DataPostgreSql extends AbstractModels {
                         ],
                     ],
                 ],
-                //"sort" => [["dte_register" => ["order" => "desc"]]],
                 "aggs" => [
                     "topTenDatabaseSize" => [
                         "terms" => [
@@ -789,12 +782,12 @@ class DataPostgreSql extends AbstractModels {
             'body' => [
                 'query' => [
                     "bool" => [
-                        'must' => [
+                        'filter' => [
                             'term' => [
                                 'cod_device' => $params['cod_device'],
                             ],
                         ],
-                        'filter' => [
+                        'must' => [
                             "range" => [
                                 "dte_register" => [
                                     "gte" => $params['dte_start'],
@@ -883,12 +876,12 @@ class DataPostgreSql extends AbstractModels {
             'body' => [
                 'query' => [
                     "bool" => [
-                        'must' => [
+                        'filter' => [
                             'term' => [
                                 'cod_device' => $params['cod_device'],
                             ],
                         ],
-                        'filter' => [
+                        'must' => [
                             "range" => [
                                 "dte_register" => [
                                     "gte" => $params['dte_start'],
@@ -1006,12 +999,12 @@ class DataPostgreSql extends AbstractModels {
             'body' => [
                 'query' => [
                     "bool" => [
-                        'must' => [
+                        'filter' => [
                             'term' => [
                                 'cod_device' => $params['cod_device'],
                             ],
                         ],
-                        'filter' => [
+                        'must' => [
                             "range" => [
                                 "dte_register" => [
                                     "gte" => $params['dte_start'],
@@ -1091,12 +1084,12 @@ class DataPostgreSql extends AbstractModels {
             'body' => [
                 'query' => [
                     "bool" => [
-                        'must' => [
+                        'filter' => [
                             'term' => [
                                 'cod_device' => $params['cod_device'],
                             ],
                         ],
-                        'filter' => [
+                        'must' => [
                             "range" => [
                                 "dte_register" => [
                                     "gte" => $params['dte_start'],
@@ -1289,12 +1282,12 @@ class DataPostgreSql extends AbstractModels {
             'body' => [
                 'query' => [
                     "bool" => [
-                        'must' => [
+                        'filter' => [
                             'term' => [
                                 'cod_device' => $params['cod_device'],
                             ],
                         ],
-                        'filter' => [
+                        'must' => [
                             "range" => [
                                 "dte_register" => [
                                     "gte" => $params['dte_start'],
@@ -1490,12 +1483,12 @@ class DataPostgreSql extends AbstractModels {
             'body' => [
                 'query' => [
                     "bool" => [
-                        'must' => [
+                        'filter' => [
                             'term' => [
                                 'cod_device' => $params['cod_device'],
                             ],
                         ],
-                        'filter' => [
+                        'must' => [
                             "range" => [
                                 "dte_register" => [
                                     "gte" => $params['dte_start'],
@@ -1691,12 +1684,12 @@ class DataPostgreSql extends AbstractModels {
             'body' => [
                 'query' => [
                     "bool" => [
-                        'must' => [
+                        'filter' => [
                             'term' => [
                                 'cod_device' => $params['cod_device'],
                             ],
                         ],
-                        'filter' => [
+                        'must' => [
                             "range" => [
                                 "dte_register" => [
                                     "gte" => $params['dte_start'],
